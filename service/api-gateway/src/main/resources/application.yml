@@ -1,0 +1,57 @@
+server:
+  servlet:
+    context-path: /api-gateway/api
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+
+  application:
+    name: api-gateway
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        generate_statistics: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: methods
+    tags-sorter: alpha
+    display-request-duration: true
+    default-model-expand-depth: 10
+    display-operation-id: true
+
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hotel-booking
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        default_schema: api-gateway
+
+
