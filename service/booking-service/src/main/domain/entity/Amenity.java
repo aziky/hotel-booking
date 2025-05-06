@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Data;
+
 
 @Data
 @NoArgsConstructor
