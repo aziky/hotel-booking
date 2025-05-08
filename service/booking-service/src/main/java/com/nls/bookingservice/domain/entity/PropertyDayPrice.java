@@ -1,12 +1,10 @@
-package service.bookingservice.src.main.domain.entity;
+package com.nls.bookingservice.domain.entity;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -17,10 +15,10 @@ public class PropertyDayPrice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private String id;
 
     @Column(name = "property_id")
-    private Integer propertyId;
+    private String propertyId;
 
     @Column(name = "day_of_week")
     private Integer dayOfWeek;

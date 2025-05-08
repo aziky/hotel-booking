@@ -1,7 +1,4 @@
-package service.bookingservice.src.main.domain.entity;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+package com.nls.bookingservice.domain.entity;
 import java.util.List;
 
 import jakarta.persistence.*;

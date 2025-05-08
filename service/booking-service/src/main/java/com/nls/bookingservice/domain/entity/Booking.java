@@ -1,12 +1,12 @@
-package service.bookingservice.src.main.domain.entity;
+package com.nls.bookingservice.domain.entity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -17,13 +17,13 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private String id;
 
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private String userId;
 
     @Column(name = "property_id", nullable = false)
-    private Integer propertyId;
+    private String propertyId;
 
     @Column(name = "check_in")
     private LocalDate checkIn;
@@ -38,14 +38,10 @@ public class Booking {
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "property_id", insertable = false, updatable = false)
     private Property property;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id")
-    private List<Payment> payments;
+//    @OneToMany(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "booking_id")
+//    private List<Payment> payments;
 }

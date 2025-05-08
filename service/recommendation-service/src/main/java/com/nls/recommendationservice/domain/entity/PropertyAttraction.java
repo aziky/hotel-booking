@@ -1,12 +1,9 @@
-package service.recommendationservice.src.main.domain.entity;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+package com.nls.recommendationservice.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -17,17 +14,13 @@ public class PropertyAttraction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private String id;
 
     @Column(name = "property_id")
-    private Integer propertyId;
+    private String propertyId;
 
     @Column(name = "attraction_id")
-    private Integer attractionId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "property_id", insertable = false, updatable = false)
-    private Property property;
+    private String attractionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attraction_id", insertable = false, updatable = false)

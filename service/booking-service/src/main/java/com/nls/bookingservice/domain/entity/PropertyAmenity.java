@@ -1,8 +1,4 @@
-package service.bookingservice.src.main.domain.entity;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
+package com.nls.bookingservice.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
@@ -18,13 +14,13 @@ public class PropertyAmenity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private String id;
 
     @Column(name = "property_id")
-    private Integer propertyId;
+    private String propertyId;
 
     @Column(name = "amenity_id")
-    private Integer amenityId;
+    private String amenityId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "property_id", insertable = false, updatable = false)

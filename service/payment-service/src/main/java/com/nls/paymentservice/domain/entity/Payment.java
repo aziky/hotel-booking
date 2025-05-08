@@ -1,11 +1,13 @@
-package service.paymentservice.src.main.domain.entity;
+package com.nls.paymentservice.domain.entity;
+
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.persistence.*;
-import service.bookingservice.src.main.domain.entity.Booking;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,10 +17,10 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", columnDefinition = "uuid", updatable = false)
-    private string id;
+    private String id;
 
     @Column(name = "booking_id", nullable = false, columnDefinition = "uuid")
-    private string bookingId;
+    private String bookingId;
 
     @Column(name = "amount")
     private BigDecimal amount;
@@ -41,7 +43,4 @@ public class Payment {
     @Column(name = "updated_by")
     private String updatedBy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id", insertable = false, updatable = false)
-    private Booking booking;
 }
