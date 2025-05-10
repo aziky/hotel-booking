@@ -1,9 +1,13 @@
 package com.nls.bookingservice.domain.entity;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Data
 @NoArgsConstructor
@@ -12,15 +16,25 @@ import lombok.NoArgsConstructor;
 @Table(name = "property_categories", schema = "booking")
 public class PropertyCategory {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private String id;
+    @Column(name = "property_id", nullable = false)
+    private UUID propertyId;
 
-    @Column(name = "property_id")
-    private String propertyId;
+    @Id
+    @Column(name = "category_id", nullable = false)
+    private UUID categoryId;
 
-    @Column(name = "category_id")
-    private String categoryId;
+    @Column(name = "created_at")
+    @ColumnDefault("NOW()")
+    private LocalDateTime createdAt;
+
+    @Column(name = "created_by", length = 50)
+    private String createdBy;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "updated_by", length = 50)
+    private String updatedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "property_id", insertable = false, updatable = false)
