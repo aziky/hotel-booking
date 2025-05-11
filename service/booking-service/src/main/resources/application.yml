@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /booking-service/api
+    context-path: /api
   port: 8082
 
 spring:
@@ -18,6 +18,8 @@ spring:
         generate_statistics: true
 
 springdoc:
+  api-docs:
+    path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: methods
