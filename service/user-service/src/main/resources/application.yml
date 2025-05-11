@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /user-service/api
+    context-path: /api
   port: 8081
 
 spring:
@@ -16,8 +16,11 @@ spring:
       hibernate:
         format_sql: true
         generate_statistics: true
+        default_schema: user-service
 
 springdoc:
+  api-docs:
+    path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: methods
@@ -26,7 +29,15 @@ springdoc:
     default-model-expand-depth: 10
     display-operation-id: true
 
+logging:
+  level:
+    org.springframework.security: DEBUG
 
+
+jwt:
+  secret: my-super-secret-key-which-should-be-very-long
+  issuer: NLS-Backend
+  duration: 3600000
 
 eureka:
   client:

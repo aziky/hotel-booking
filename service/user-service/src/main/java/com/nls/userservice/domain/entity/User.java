@@ -14,10 +14,10 @@ import org.hibernate.annotations.ColumnDefault;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "users", schema = "user")
+@Table(name = "users", schema = "user_service")
 public class User {
     @Id
-    @ColumnDefault("uuid_generate_v4()")
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
 
