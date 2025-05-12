@@ -4,13 +4,10 @@ server:
 spring:
   profiles:
     active: dev
-
   main:
     web-application-type: reactive
-
   application:
     name: api-gateway
-
   cloud:
     gateway:
       discovery:
@@ -22,42 +19,22 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/user-service/**
-#        - id: user-service-swagger-docs
-#          uri: lb://user-service
-#          predicates:
-#            - Path=/user-service/v3/api-docs
-#          filters:
-#            - RewritePath=/user-service/v3/api-docs, /api/v3/api-docs
 
-security:
-  basic:
-    enabled: false
 
 logging:
   level:
     org.springframework.security: DEBUG
 
-swagger:
-  services:
-    - name: user-service
-      url: http://localhost:8081/api/v3/api-docs
-    - name: booking-service
-      url: http://localhost:8082/api/v3/api-docs
-    - name: payment-service
-      url: http://localhost:8083/v3/api-docs
-
-
 springdoc:
   api-docs:
     enabled: true
-    path: /v3/api-docs
   swagger-ui:
     enabled: true
-    url: /api-docs/aggregate
-    disable-swagger-default-url: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
     urls:
       - name: api-gateway
-        url: /v3/api-doc
+        url: /v3/api-docs
       - name: user-service
         url: http://localhost:8081/api/v3/api-docs
       - name: booking-service
