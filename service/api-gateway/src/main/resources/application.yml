@@ -19,6 +19,26 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/user-service/**
+        - id: booking-service
+          uri: lb://booking-service
+          predicates:
+            - Path=/booking-service/**
+        - id: booking-service
+          uri: lb://booking-service
+          predicates:
+            - Path=/notification-service/**
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/notification-service/**
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/payment-service/**
+        - id: recommendation-service
+          uri: lb://recommendation-service
+          predicates:
+            - Path=/recommendation-service/**
 
 
 logging:
@@ -39,6 +59,12 @@ springdoc:
         url: http://localhost:8081/api/v3/api-docs
       - name: booking-service
         url: http://localhost:8082/api/v3/api-docs
+      - name: payment-service
+        url: http://localhost:8083/api/v3/api-docs
+      - name: notification-service
+        url: http://localhost:8084/api/v3/api-docs
+      - name: recommendation-service
+        url: http://localhost:8085/api/v3/api-docs
 
 eureka:
   client:

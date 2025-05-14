@@ -16,7 +16,7 @@ import java.util.UUID;
 @Check(constraints = "rating BETWEEN 1 AND 5")
 public class Review {
     @Id
-    @ColumnDefault("uuid_generate_v4()")
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
 

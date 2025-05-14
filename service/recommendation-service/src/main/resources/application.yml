@@ -1,6 +1,6 @@
 server:
   servlet:
-    context-path: /recommendation-service/api
+    context-path: /api
   port: 8085
 
 spring:

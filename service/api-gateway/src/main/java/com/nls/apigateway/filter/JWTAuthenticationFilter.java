@@ -17,14 +17,14 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.Date;
 import java.util.List;
 
 @Component
-@Slf4j
 public class JWTAuthenticationFilter implements WebFilter {
 
 
-    private final String SECRET_KEY = "extremely-secret";
+    private final String SECRET_KEY = "my-super-secret-key-which-should-be-very-long";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -40,31 +40,39 @@ public class JWTAuthenticationFilter implements WebFilter {
             SignedJWT signedJWT = SignedJWT.parse(token);
             JWSVerifier verifier = new MACVerifier(SECRET_KEY);
 
-            if (signedJWT.verify(verifier)) {
-                String username = signedJWT.getJWTClaimsSet().getSubject();
-                List<String> roles = (List<String>) signedJWT.getJWTClaimsSet().getClaim("roles");
-
-                List<SimpleGrantedAuthority> authorities = roles.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .toList();
-
-                Authentication auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
-                return chain.filter(exchange)
-                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
+            if (!signedJWT.verify(verifier)) {
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
             }
+
+            Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+            if (expirationTime == null || new Date().after(expirationTime)) {
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            }
+
+            String userId = signedJWT.getJWTClaimsSet().getSubject();
+            String role = (String) signedJWT.getJWTClaimsSet().getClaim("role");
+            String email = (String) signedJWT.getJWTClaimsSet().getClaim("email");
+            ServerHttpRequest mutatedRequest = request.mutate()
+                    .header("X-User-Id", userId)
+                    .header("X-Roles", role)
+                    .header("X-Email", email)
+                    .build();
+
+            ServerWebExchange mutatedExchange = exchange.mutate()
+                    .request(mutatedRequest).build();
+
+            List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+            Authentication auth = new UsernamePasswordAuthenticationToken(userId, null, authorities);
+
+            return chain.filter(mutatedExchange)
+                    .contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth));
+
         } catch (Exception e) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
-        return chain.filter(exchange);
     }
-
-//    private boolean isSwaggerPath(ServerHttpRequest request) {
-//        String path = request.getPath().value();
-//        for (String swaggerPath : SWAGGER_PATHS) {
-//            if (swaggerPath.equals(path)) return true;
-//        }
-//        return false;
-//    }
 }
