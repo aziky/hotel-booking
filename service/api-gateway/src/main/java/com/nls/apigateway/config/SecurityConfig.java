@@ -22,6 +22,7 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/webjars/**",
+            "/user-service/api/auth/**"
     };
 
 
@@ -30,9 +31,8 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-//                        .pathMatchers(PUBLIC_ENDPOINT).permitAll()
-//                        .anyExchange().authenticated()
-                                .anyExchange().permitAll()
+                        .pathMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .anyExchange().authenticated()
                 )
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)

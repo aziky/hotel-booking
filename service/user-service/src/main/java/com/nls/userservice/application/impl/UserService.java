@@ -15,6 +15,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -29,7 +31,7 @@ public class UserService implements IUserService {
     @Override
     public ApiResponse<UserRes> login(LoginReq loginReq) {
         try {
-            log.info("start handle login");
+            log.info("Start handle login");
             User user = userRepository.findByEmailAndPasswordHash(loginReq.email(), loginReq.password())
                     .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -41,6 +43,22 @@ public class UserService implements IUserService {
             return ApiResponse.notFound(e.getMessage(), null);
         } catch (Exception e) {
             log.error("Error at login cause by {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
+    @Override
+    public ApiResponse<UserRes> getUserProfileByUserId(UUID userId) {
+        try {
+            log.info("start handle at get user profile with request {}", userId);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found with userId " + userId));
+            return ApiResponse.ok(userMapper.convertToUserRes(user));
+        } catch (EntityNotFoundException e ) {
+            log.warn("Get user profile failed cause by {}", e.getMessage());
+            return ApiResponse.notFound(e.getMessage(), null);
+        } catch (Exception e) {
+            log.error("Error at get user profile by user id cause by {}", e.getMessage());
             return ApiResponse.internalError();
         }
     }
