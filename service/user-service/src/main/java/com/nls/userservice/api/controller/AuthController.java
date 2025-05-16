@@ -1,6 +1,7 @@
 package com.nls.userservice.api.controller;
 
 
+import com.nls.userservice.api.dto.request.CreateUseReq;
 import com.nls.userservice.api.dto.request.LoginReq;
 import com.nls.userservice.api.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
@@ -26,4 +27,10 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserRes>> login(@RequestBody LoginReq request) {
         return ResponseEntity.ok(userService.login(request));
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<Void>> registerUserAccount(@RequestBody CreateUseReq request) {
+        return ResponseEntity.ok(userService.createUser(request));
+    }
+
 }
