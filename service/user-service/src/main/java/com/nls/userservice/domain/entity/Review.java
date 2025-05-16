@@ -3,7 +3,8 @@ package com.nls.userservice.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Check;
-import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -39,13 +40,14 @@ public class Review {
     private String comment;
 
     @Column(name = "created_at")
-    @ColumnDefault("NOW()")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "created_by", length = 50)
     private String createdBy;
 
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", length = 50)

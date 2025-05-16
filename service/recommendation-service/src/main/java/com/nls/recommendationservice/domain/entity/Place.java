@@ -8,6 +8,8 @@ import java.util.UUID;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +18,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Table(name = "places", schema = "recommendation")
 public class Place {
     @Id
-    @ColumnDefault("uuid_generate_v4()")
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
 
@@ -54,13 +56,14 @@ public class Place {
     private String imageUrl;
 
     @Column(name = "created_at")
-    @ColumnDefault("NOW()")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "created_by", length = 50)
     private String createdBy;
 
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", length = 50)

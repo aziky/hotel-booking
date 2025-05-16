@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Data
 @NoArgsConstructor
@@ -17,7 +19,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Table(name = "holiday", schema = "booking")
 public class Holiday {
     @Id
-    @ColumnDefault("uuid_generate_v4()")
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
 
@@ -38,13 +40,14 @@ public class Holiday {
     private BigDecimal priceOverride;
 
     @Column(name = "created_at")
-    @ColumnDefault("NOW()")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "created_by", length = 50)
     private String createdBy;
 
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", length = 50)
