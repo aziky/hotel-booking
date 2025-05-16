@@ -1,4 +1,8 @@
 package com.nls.userservice.domain.enumeration;
 
-public class StaticEnum {
+public enum Role {
+
+    USER,
+    ADMIN,
+
 }
