@@ -20,6 +20,7 @@
         <spring-cloud.version>2023.0.0</spring-cloud.version>
         <springdoc-openapi-starter-webmvc-ui.version>2.2.0</springdoc-openapi-starter-webmvc-ui.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+        <common.version>0.0.1-SNAPSHOT</common.version>
     </properties>
 
     <dependencies>
@@ -58,6 +59,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.nls</groupId>
+            <artifactId>common</artifactId>
+            <version>${common.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->

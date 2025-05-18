@@ -1,5 +1,6 @@
 package com.nls.userservice.infrastructure.config;
 
+import com.nls.common.enumration.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -40,7 +41,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(USER_ENDPOINTS).hasAuthority("USER")
+                        .requestMatchers(USER_ENDPOINTS).hasAuthority(Role.USER.name())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

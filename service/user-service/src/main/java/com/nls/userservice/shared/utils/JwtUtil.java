@@ -1,34 +1,37 @@
 package com.nls.userservice.shared.utils;
 
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import org.springframework.beans.factory.annotation.Value;
+import com.nls.userservice.infrastructure.properties.JwtProperties;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 @Component
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class JwtUtil {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
-    @Value("${jwt.issuer}")
-    private String issuer;
-    @Value("${jwt.duration}")
-    private long expirationTime;
+    JwtProperties jwtProperties;
 
     public String generateToken(String userId, String email, String role) throws JOSEException {
-        JWSSigner signer = new MACSigner(secretKey.getBytes());
+        JWSSigner signer = new MACSigner(jwtProperties.secretKey().getBytes());
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(userId)
-                .issuer(issuer)
+                .issuer(jwtProperties.issuer())
                 .claim("email", email)
                 .claim("role", role)
                 .issueTime(new Date())
-                .expirationTime(new Date(System.currentTimeMillis() + expirationTime))
+                .expirationTime(new Date(System.currentTimeMillis() + jwtProperties.duration()))
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(

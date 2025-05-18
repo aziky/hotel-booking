@@ -1,6 +1,7 @@
 package com.nls.apigateway.config;
 
 import com.nls.apigateway.filter.JWTAuthenticationFilter;
+import com.nls.common.enumration.Role;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,13 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/webjars/**",
-            "/user-service/api/auth/**"
+            "/user-service/api/auth/**",
+            "/",
+            "/user-service/api/v3/api-docs"
+    };
+
+    private static final String[] USER_ENDPOINT = {
+            "/user-service/api/user"
     };
 
 
@@ -32,6 +39,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .pathMatchers(USER_ENDPOINT).hasAuthority(Role.USER.name())
                         .anyExchange().authenticated()
                 )
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
