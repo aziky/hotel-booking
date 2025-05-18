@@ -3,7 +3,8 @@ package com.nls.apigateway.filter;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.SignedJWT;
-import lombok.extern.slf4j.Slf4j;
+import com.nls.apigateway.properties.JwtProperties;
+import com.nls.common.enumration.CustomHeader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -23,8 +24,7 @@ import java.util.List;
 @Component
 public class JWTAuthenticationFilter implements WebFilter {
 
-
-    private final String SECRET_KEY = "my-super-secret-key-which-should-be-very-long";
+    JwtProperties jwtProperties;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -38,7 +38,7 @@ public class JWTAuthenticationFilter implements WebFilter {
         String token = header.substring(7);
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
-            JWSVerifier verifier = new MACVerifier(SECRET_KEY);
+            JWSVerifier verifier = new MACVerifier(jwtProperties.secretKey());
 
             if (!signedJWT.verify(verifier)) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -55,9 +55,9 @@ public class JWTAuthenticationFilter implements WebFilter {
             String role = (String) signedJWT.getJWTClaimsSet().getClaim("role");
             String email = (String) signedJWT.getJWTClaimsSet().getClaim("email");
             ServerHttpRequest mutatedRequest = request.mutate()
-                    .header("X-User-Id", userId)
-                    .header("X-Roles", role)
-                    .header("X-Email", email)
+                    .header(CustomHeader.X_USER_ID, userId)
+                    .header(CustomHeader.X_ROLES, role)
+                    .header(CustomHeader.X_EMAIL, email)
                     .build();
 
             ServerWebExchange mutatedExchange = exchange.mutate()

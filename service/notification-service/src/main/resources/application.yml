@@ -8,7 +8,7 @@ spring:
     active: dev
 
   application:
-    name: payment-service
+    name: notification-service
   jpa:
     hibernate:
       ddl-auto: none

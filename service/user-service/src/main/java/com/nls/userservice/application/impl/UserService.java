@@ -1,11 +1,12 @@
 package com.nls.userservice.application.impl;
 
-import com.nls.userservice.api.dto.request.CreateUseReq;
+import com.nls.common.enumration.Role;
+import com.nls.userservice.api.dto.request.CreateUserReq;
 import com.nls.userservice.api.dto.request.LoginReq;
+import com.nls.userservice.api.dto.request.UpdateUserReq;
 import com.nls.userservice.api.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
 import com.nls.userservice.domain.entity.User;
-import com.nls.userservice.domain.enumeration.Role;
 import com.nls.userservice.domain.repository.UserRepository;
 import com.nls.userservice.shared.base.ApiResponse;
 import com.nls.userservice.shared.exceptions.EntityNotFoundException;
@@ -79,7 +80,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ApiResponse<Void> createUser(CreateUseReq request) {
+    public ApiResponse<Void> createUser(CreateUserReq request) {
         try {
             log.info("Start create user with the request {}", request);
             if (userRepository.existsUserByEmail(request.email())) {
@@ -98,6 +99,24 @@ public class UserService implements IUserService {
             return ApiResponse.badRequest(e.getMessage());
         } catch (Exception e) {
             log.error("Error at create user cause by {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
+    @Override
+    public ApiResponse<Void> updateUser(UUID userId, UpdateUserReq request) {
+        try {
+            log.info("Start update user with the request {}", request);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+            userMapper.updateUserFromDto(request, user);
+            userRepository.save(user);
+
+            log.info("Update user successfully");
+            return ApiResponse.success();
+        } catch (Exception e) {
+            log.error("Error at update user cause by {}", e.getMessage());
             return ApiResponse.internalError();
         }
     }

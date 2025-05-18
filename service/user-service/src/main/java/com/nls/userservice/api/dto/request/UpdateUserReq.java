@@ -1,14 +1,14 @@
 package com.nls.userservice.api.dto.request;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-public record CreateUseReq(
+public record UpdateUserReq (
         String email,
-        String password,
         String firstName,
         String lastName,
         String phoneNumber,
-        LocalDateTime dateOfBirth,
-        String identification
+        LocalDate dateOfBirth,
+        String identification,
+        String gender
 ) {
 }
