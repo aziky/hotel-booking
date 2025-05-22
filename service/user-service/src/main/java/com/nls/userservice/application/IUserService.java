@@ -1,6 +1,8 @@
 package com.nls.userservice.application;
 
+import com.nls.userservice.api.dto.request.CreateUserReq;
 import com.nls.userservice.api.dto.request.LoginReq;
+import com.nls.userservice.api.dto.request.UpdateUserReq;
 import com.nls.userservice.api.dto.response.UserRes;
 import com.nls.userservice.shared.base.ApiResponse;
 
@@ -11,5 +13,9 @@ public interface IUserService {
     ApiResponse<UserRes> login(LoginReq loginReq);
 
     ApiResponse<UserRes> getUserProfileByUserId(UUID userId);
+
+    ApiResponse<Void> createUser(CreateUserReq request);
+
+    ApiResponse<Void> updateUser(UUID userId, UpdateUserReq request);
 
 }

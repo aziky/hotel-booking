@@ -23,10 +23,6 @@ spring:
           uri: lb://booking-service
           predicates:
             - Path=/booking-service/**
-        - id: booking-service
-          uri: lb://booking-service
-          predicates:
-            - Path=/notification-service/**
         - id: notification-service
           uri: lb://notification-service
           predicates:
@@ -46,8 +42,6 @@ logging:
     org.springframework.security: DEBUG
 
 springdoc:
-  api-docs:
-    enabled: true
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
@@ -56,15 +50,15 @@ springdoc:
       - name: api-gateway
         url: /v3/api-docs
       - name: user-service
-        url: http://localhost:8081/api/v3/api-docs
+        url: /user-service/api/v3/api-docs
       - name: booking-service
-        url: http://localhost:8082/api/v3/api-docs
+        url: /booking-service/api/v3/api-docs
       - name: payment-service
-        url: http://localhost:8083/api/v3/api-docs
+        url: /payment-service/api/v3/api-docs
       - name: notification-service
-        url: http://localhost:8084/api/v3/api-docs
+        url: /notification-service/api/v3/api-docs
       - name: recommendation-service
-        url: http://localhost:8085/api/v3/api-docs
+        url: /recommendation-service/api/v3/api-docs
 
 eureka:
   client:
@@ -92,4 +86,5 @@ spring:
       hibernate:
         default_schema: api-gateway
 
-
+jwt:
+  secret-key: e12ddd7c24485873318bcdfce6696932504b8cf91b42256570a03825a5c4083023ddf4f73f0c21da9ff63a4804d98b4d681c3bca88b028f6be75254078a0346530d105c2d8318b044f2c3f633ab802d18f5964ec3b063f66f01d2a0178605c2cd8267a5589432ad6f6b45b83b211eb3f57f71b32f9aa9d75e3f72b64c367703017acbe0a08caf43dbabd0a797dc79a9b97089653fc9379c59f03c69bbdde659377f6b35f4b194b26fe1b8e1b69f3dd671574168307f90b34f7a9c187762042ca47a0bc2251241b1919600fb288ecaef6bb20f935fc12a9509caefbda071bf0c03da0cae31e27e46668d60f7652a807a974c31aae72cfc0296e4f3542f8a69663

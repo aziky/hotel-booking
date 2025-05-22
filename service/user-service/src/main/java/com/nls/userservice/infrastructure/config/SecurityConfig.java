@@ -1,13 +1,15 @@
 package com.nls.userservice.infrastructure.config;
 
+import com.nls.common.enumration.Role;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -24,7 +26,7 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html",
-            "/auth/login"
+            "/auth/**"
     };
 
     private final String[] USER_ENDPOINTS = {
@@ -39,7 +41,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(USER_ENDPOINTS).hasAuthority("USER")
+                        .requestMatchers(USER_ENDPOINTS).hasAuthority(Role.USER.name())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -66,5 +68,10 @@ public class SecurityConfig {
         return new CustomHeaderAuthFilter();
     }
 
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
 }
