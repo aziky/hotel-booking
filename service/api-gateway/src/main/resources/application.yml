@@ -47,17 +47,17 @@ springdoc:
     path: /swagger-ui.html
     config-url: /v3/api-docs/swagger-config
     urls:
-      - name: api-gateway
+      - name: API Gateway
         url: /v3/api-docs
-      - name: user-service
+      - name: User Service
         url: /user-service/api/v3/api-docs
-      - name: booking-service
+      - name: Booking Service
         url: /booking-service/api/v3/api-docs
-      - name: payment-service
+      - name: Payment Service
         url: /payment-service/api/v3/api-docs
-      - name: notification-service
+      - name: Notification Service
         url: /notification-service/api/v3/api-docs
-      - name: recommendation-service
+      - name: Recommendation Service
         url: /recommendation-service/api/v3/api-docs
 
 eureka:
