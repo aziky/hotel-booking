@@ -8,12 +8,16 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "notifications", schema = "notification")
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "notifications", schema = "notification_service")
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,6 +38,7 @@ public class Notification {
     private LocalDateTime createdAt;
 
     @Column(name = "created_by", length = 50)
+    @CreatedBy
     private String createdBy;
 
     @Column(name = "updated_at")
@@ -41,6 +46,7 @@ public class Notification {
     private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", length = 50)
+    @LastModifiedBy
     private String updatedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)

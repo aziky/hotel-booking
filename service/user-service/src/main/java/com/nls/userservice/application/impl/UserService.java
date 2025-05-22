@@ -1,5 +1,6 @@
 package com.nls.userservice.application.impl;
 
+import com.nls.common.dto.response.ApiResponse;
 import com.nls.common.enumration.Role;
 import com.nls.userservice.api.dto.request.CreateUserReq;
 import com.nls.userservice.api.dto.request.LoginReq;
@@ -8,7 +9,6 @@ import com.nls.userservice.api.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
 import com.nls.userservice.domain.entity.User;
 import com.nls.userservice.domain.repository.UserRepository;
-import com.nls.userservice.shared.base.ApiResponse;
 import com.nls.userservice.shared.exceptions.EntityNotFoundException;
 import com.nls.userservice.shared.mapper.UserMapper;
 import com.nls.userservice.shared.utils.JwtUtil;

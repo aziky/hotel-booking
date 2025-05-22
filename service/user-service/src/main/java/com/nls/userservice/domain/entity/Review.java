@@ -5,6 +5,9 @@ import lombok.*;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -13,7 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "reviews", schema = "user")
+@Table(name = "reviews", schema = "user_service")
+@EntityListeners(AuditingEntityListener.class)
 @Check(constraints = "rating BETWEEN 1 AND 5")
 public class Review {
     @Id
@@ -44,6 +48,7 @@ public class Review {
     private LocalDateTime createdAt;
 
     @Column(name = "created_by", length = 50)
+    @CreatedBy
     private String createdBy;
 
     @Column(name = "updated_at")
@@ -51,6 +56,7 @@ public class Review {
     private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", length = 50)
+    @LastModifiedBy
     private String updatedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)

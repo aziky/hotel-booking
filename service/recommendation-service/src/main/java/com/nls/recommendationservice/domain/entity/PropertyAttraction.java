@@ -11,12 +11,16 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "property_attractions", schema = "recommendation")
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "property_attractions", schema = "recommendation_service")
 public class PropertyAttraction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -46,6 +50,7 @@ public class PropertyAttraction {
     private LocalDateTime createdAt;
 
     @Column(name = "created_by", length = 50)
+    @CreatedBy
     private String createdBy;
 
     @Column(name = "updated_at")
@@ -53,6 +58,7 @@ public class PropertyAttraction {
     private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", length = 50)
+    @LastModifiedBy
     private String updatedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)

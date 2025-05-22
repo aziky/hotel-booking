@@ -5,6 +5,8 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.SignedJWT;
 import com.nls.apigateway.properties.JwtProperties;
 import com.nls.common.enumration.CustomHeader;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -22,12 +24,15 @@ import java.util.Date;
 import java.util.List;
 
 @Component
+@Slf4j
+@RequiredArgsConstructor
 public class JWTAuthenticationFilter implements WebFilter {
 
-    JwtProperties jwtProperties;
+    private final JwtProperties jwtProperties;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        log.info("Start parsing jwt");
         ServerHttpRequest request = exchange.getRequest();
 
         String header = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
