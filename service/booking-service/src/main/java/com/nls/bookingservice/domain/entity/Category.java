@@ -9,12 +9,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "categories", schema = "booking")
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "categories", schema = "booking_service")
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,6 +39,7 @@ public class Category {
     private LocalDateTime createdAt;
 
     @Column(name = "created_by", length = 50)
+    @CreatedBy
     private String createdBy;
 
     @Column(name = "updated_at")
@@ -42,6 +47,7 @@ public class Category {
     private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", length = 50)
+    @LastModifiedBy
     private String updatedBy;
 
     @OneToMany(fetch = FetchType.LAZY)

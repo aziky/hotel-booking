@@ -55,3 +55,5 @@ spring:
         default_schema: recommendation-service
 
 
+openapi:
+  server-url: http://localhost:8080/recommendataion-service/api
