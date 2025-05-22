@@ -56,4 +56,5 @@ spring:
       hibernate:
         default_schema: booking-service
 
-
+openapi:
+  server-url: http://localhost:8080/booking-service/api

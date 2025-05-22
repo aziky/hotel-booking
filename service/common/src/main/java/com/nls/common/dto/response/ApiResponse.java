@@ -1,4 +1,4 @@
-package com.nls.userservice.shared.base;
+package com.nls.common.dto.response;
 
 import org.springframework.http.HttpStatus;
 

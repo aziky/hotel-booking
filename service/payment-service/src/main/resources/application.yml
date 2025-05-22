@@ -54,4 +54,6 @@ spring:
       hibernate:
         default_schema: payment-service
 
+openapi:
+  server-url: http://localhost:8080/payment-service/api
 

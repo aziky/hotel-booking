@@ -1,9 +1,9 @@
 package com.nls.userservice.api.controller;
 
+import com.nls.common.dto.response.ApiResponse;
 import com.nls.userservice.api.dto.request.UpdateUserReq;
 import com.nls.userservice.api.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
-import com.nls.userservice.shared.base.ApiResponse;
 import com.nls.userservice.shared.utils.SecurityUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
