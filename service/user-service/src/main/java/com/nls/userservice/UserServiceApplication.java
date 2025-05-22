@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 
 @SpringBootApplication
-@EnableDiscoveryClient
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @ConfigurationPropertiesScan("com.nls.userservice.infrastructure.properties")
 public class UserServiceApplication {

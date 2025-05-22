@@ -2,6 +2,7 @@ package com.nls.apigateway.config;
 
 import com.nls.apigateway.filter.JWTAuthenticationFilter;
 import com.nls.common.enumration.Role;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,10 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebFluxSecurity
 @Slf4j
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JWTAuthenticationFilter jwtAuthFilter;
 
     private static final String[] PUBLIC_ENDPOINT = {
             "/swagger-ui.html",
@@ -25,11 +29,16 @@ public class SecurityConfig {
             "/webjars/**",
             "/user-service/api/auth/**",
             "/",
-            "/user-service/api/v3/api-docs"
+            "/user-service/api/v3/api-docs",
+            "/booking-service/api/v3/api-docs",
+            "/payment-service/api/v3/api-docs",
+            "/notification-service/api/v3/api-docs",
+            "/recommendation-service/api/v3/api-docs",
     };
 
     private static final String[] USER_ENDPOINT = {
-            "/user-service/api/user"
+            "/user-service/api/user",
+            "/booking-service/api/booking"
     };
 
 
@@ -44,14 +53,10 @@ public class SecurityConfig {
                 )
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .addFilterAt(jwtAuthFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+                .addFilterAt(jwtAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }
 
-    @Bean
-    public JWTAuthenticationFilter jwtAuthFilter() {
-        return new JWTAuthenticationFilter();
-    }
 
 
     @Bean
