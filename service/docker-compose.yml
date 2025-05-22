@@ -45,7 +45,8 @@ services:
       - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bookingdb
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bookingdb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/exe_db
       - SPRING_RABBITMQ_HOST=rabbitmq
     depends_on:
       - redis
