@@ -12,6 +12,8 @@ public record UserRes(
         String name,
         String email,
         String phoneNumber,
+        String profilePicture,
+        String identification,
         @JsonFormat(pattern = "dd-MM-yyyy")
         LocalDate dateOfBirth,
         String gender,
