@@ -38,7 +38,8 @@ public class SecurityConfig {
 
     private static final String[] USER_ENDPOINT = {
             "/user-service/api/user",
-            "/booking-service/api/booking"
+            "/booking-service/api/booking",
+            "/booking-service/api/property/add"
     };
 
 
