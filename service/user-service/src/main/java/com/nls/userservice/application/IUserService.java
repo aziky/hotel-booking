@@ -6,8 +6,6 @@ import com.nls.userservice.api.dto.request.LoginReq;
 import com.nls.userservice.api.dto.request.UpdateUserReq;
 import com.nls.userservice.api.dto.response.UserRes;
 
-import java.util.UUID;
-
 public interface IUserService {
 
     ApiResponse<UserRes> login(LoginReq loginReq);
