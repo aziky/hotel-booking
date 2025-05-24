@@ -12,6 +12,7 @@ import com.nls.userservice.domain.repository.UserRepository;
 import com.nls.userservice.shared.exceptions.EntityNotFoundException;
 import com.nls.userservice.shared.mapper.UserMapper;
 import com.nls.userservice.shared.utils.JwtUtil;
+import com.nls.userservice.shared.utils.SecurityUtil;
 import jakarta.persistence.EntityExistsException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -64,8 +65,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ApiResponse<UserRes> getUserProfileByUserId(UUID userId) {
+    public ApiResponse<UserRes> getUserProfileByUserId() {
         try {
+            UUID userId = SecurityUtil.getCurrentUserId();
             log.info("Start handle at get user profile with request {}", userId);
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User not found with userId " + userId));
@@ -104,8 +106,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ApiResponse<Void> updateUser(UUID userId, UpdateUserReq request) {
+    public ApiResponse<Void> updateUser(UpdateUserReq request) {
         try {
+            UUID userId = SecurityUtil.getCurrentUserId();
             log.info("Start update user with the request {}", request);
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User not found"));

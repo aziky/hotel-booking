@@ -38,7 +38,7 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public GroupedOpenApi paymentService() {
+    public GroupedOpenApi paymentServiceApi() {
         return GroupedOpenApi.builder()
                 .group("payment-service")
                 .pathsToMatch("/api/**")
