@@ -26,7 +26,14 @@ springdoc:
     default-model-expand-depth: 10
     display-operation-id: true
 
-
+vnpay:
+  vnpay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  vnpay-return-url: /payment-service/api/payment/IPN/vnpay
+  vnp-tmp-code: YT0N8Y4H
+  secret-key: 1AMMHZQ72INFTDDNJZWP5ZWI9O2CE1ZY
+  vnpay-api-url: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+  vnp-command: pay
+  vnp-version: 2.1.0
 
 eureka:
   client:
@@ -54,6 +61,13 @@ spring:
       hibernate:
         default_schema: payment-service
 
+vnpay:
+  response-host: http://localhost:8080
+
+web-url:
+  host: http://localhost:3000
+  payment-success: /payment/success
+  payment-fail: /payment/fail
+
 openapi:
   server-url: http://localhost:8080/payment-service/api
-

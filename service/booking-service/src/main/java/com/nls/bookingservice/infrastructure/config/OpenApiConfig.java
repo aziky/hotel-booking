@@ -38,7 +38,7 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public GroupedOpenApi bookingService() {
+    public GroupedOpenApi bookingServiceApi() {
         return GroupedOpenApi.builder()
                 .group("booking-service")
                 .pathsToMatch("/api/**")

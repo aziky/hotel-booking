@@ -12,10 +12,10 @@ public interface IUserService {
 
     ApiResponse<UserRes> login(LoginReq loginReq);
 
-    ApiResponse<UserRes> getUserProfileByUserId(UUID userId);
+    ApiResponse<UserRes> getUserProfileByUserId();
 
     ApiResponse<Void> createUser(CreateUserReq request);
 
-    ApiResponse<Void> updateUser(UUID userId, UpdateUserReq request);
+    ApiResponse<Void> updateUser(UpdateUserReq request);
 
 }

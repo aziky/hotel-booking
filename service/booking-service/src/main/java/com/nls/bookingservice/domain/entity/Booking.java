@@ -1,8 +1,4 @@
 package com.nls.bookingservice.domain.entity;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,6 +9,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -46,6 +47,18 @@ public class Booking {
 
     @Column(name = "price_per_night", precision = 10, scale = 2)
     private BigDecimal pricePerNight;
+
+    @Column(name = "vat", precision = 4, scale = 2)
+    private BigDecimal vat;
+
+    @Column(name = "total_amount", precision = 20, scale = 2)
+    private BigDecimal totalAmount;
+
+    @Column(name = "subtotal_amount", precision = 20, scale = 2)
+    private BigDecimal subtotalAmount;
+
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
 
     @Column(name = "booking_status", length = 50)
     private String bookingStatus;

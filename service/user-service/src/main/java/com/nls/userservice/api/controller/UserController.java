@@ -24,12 +24,12 @@ public class UserController {
     @GetMapping()
     public ResponseEntity<ApiResponse<UserRes>> getUserProfile() {
         UUID userId = SecurityUtil.getCurrentUserId();
-        return ResponseEntity.ok(userService.getUserProfileByUserId(userId));
+        return ResponseEntity.ok(userService.getUserProfileByUserId());
     }
 
     @PutMapping("/update")
     public ResponseEntity<ApiResponse<Void>> updateUserProfile(@RequestBody UpdateUserReq request) {
         UUID userId = SecurityUtil.getCurrentUserId();
-        return ResponseEntity.ok(userService.updateUser(userId, request));
+        return ResponseEntity.ok(userService.updateUser(request));
     }
 }

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -21,6 +22,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "payments", schema = "payment_service")
+@Builder
 public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
