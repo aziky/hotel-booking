@@ -1,7 +1,10 @@
 package com.nls.userservice.application.impl;
 
+import com.nls.common.dto.request.NotificationMessage;
 import com.nls.common.dto.response.ApiResponse;
+import com.nls.common.enumration.QueueName;
 import com.nls.common.enumration.Role;
+import com.nls.common.enumration.TypeEmail;
 import com.nls.userservice.api.dto.request.CreateUserReq;
 import com.nls.userservice.api.dto.request.LoginReq;
 import com.nls.userservice.api.dto.request.UpdateUserReq;
@@ -9,6 +12,8 @@ import com.nls.userservice.api.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
 import com.nls.userservice.domain.entity.User;
 import com.nls.userservice.domain.repository.UserRepository;
+import com.nls.userservice.infrastructure.external.client.RedisService;
+import com.nls.userservice.infrastructure.messaging.RabbitProducer;
 import com.nls.userservice.shared.exceptions.EntityNotFoundException;
 import com.nls.userservice.shared.mapper.UserMapper;
 import com.nls.userservice.shared.utils.JwtUtil;
@@ -21,6 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -33,7 +41,10 @@ public class UserService implements IUserService {
     UserMapper userMapper;
     JwtUtil jwtUtil;
     PasswordEncoder passwordEncoder;
+    RabbitProducer rabbitProducer;
+    RedisService redisService;
 
+    private final static String CONFIRM_URL = "http://localhost:8080/user-service/api/confirm?token=";
 
     @Override
     public ApiResponse<UserRes> login(LoginReq loginReq) {
@@ -93,9 +104,28 @@ public class UserService implements IUserService {
             user.setRole(Role.USER.name());
             user.setPasswordHash(passwordEncoder.encode(request.password()));
 
-            userRepository.save(user);
-            log.info("save user successfully");
-            return ApiResponse.created();
+            String token = UUID.randomUUID().toString();
+            redisService.save("REGISTER:" + token, request, Duration.ofMinutes(15));
+
+            String confirmLink = CONFIRM_URL + token;
+            Map<String, String> payload = new HashMap<>();
+            payload.put("firstName", request.firstName());
+            payload.put("confirmLink", confirmLink);
+
+            NotificationMessage notificationMessage =  NotificationMessage.builder()
+                    .to(request.email())
+                    .type(TypeEmail.EMAIL_CONFIRM.name())
+                    .payload(payload)
+                    .build();
+
+            log.info("Start send email to rabbit");
+            rabbitProducer.sendEmailConfirm(
+                    QueueName.EMAIL_CONFIRM_OTP.getExchangeName(),
+                    QueueName.EMAIL_CONFIRM_OTP.getRoutingKey(),
+                    notificationMessage);
+
+            log.info("Send to rabbit successfully");
+            return ApiResponse.created(null, "Registration successful. Check your email.");
         } catch (EntityExistsException e) {
             log.error(e.getMessage());
             return ApiResponse.badRequest(e.getMessage());
