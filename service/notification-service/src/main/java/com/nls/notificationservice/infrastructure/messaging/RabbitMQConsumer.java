@@ -1,0 +1,32 @@
+package com.nls.notificationservice.infrastructure.messaging;
+
+import com.nls.common.dto.request.NotificationMessage;
+import com.nls.notificationservice.application.INotificationService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
+
+@Component
+@Slf4j
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class RabbitMQConsumer {
+
+    INotificationService notificationService;
+
+    @RabbitListener(queues = "#{emailConfirmOtpQueue.name}")
+    public void consumeEmailConfirmOtp(NotificationMessage message) {
+        log.info("Received email confirmation OTP message: {}", message);
+        notificationService.sendEmail(message);
+    }
+
+    @RabbitListener(queues = "#{emailConfirmPaymentQueue.name}")
+    public void consumeEmailConfirmPayment(NotificationMessage message) {
+        log.info("Received email confirmation payment message: {}", message);
+        notificationService.sendEmail(message);
+    }
+
+}

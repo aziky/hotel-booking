@@ -35,6 +35,10 @@ eureka:
   instance:
     prefer-ip-address: true
 
+mailjet:
+  email: nls.hotel.booking@gmail.com
+  name: NonLaService Hotel
+
 ---
 spring:
   config:
@@ -51,6 +55,26 @@ spring:
       hibernate:
         default_schema: notification-service
 
+  # Mailjet Configuration
+  mail:
+    host: in-v3.mailjet.com
+    port: 587
+    username: d03b54669cfdc86e588d61b12c23f090
+    password: 0c54d42e5becc1575bc99d3bd97fe612
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: in-v3.mailjet.com
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: password
 
 openapi:
   server-url: http://localhost:8080/notification-service/api
