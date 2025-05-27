@@ -34,7 +34,8 @@ public class SecurityConfig {
             "/payment-service/api/v3/api-docs",
             "/notification-service/api/v3/api-docs",
             "/recommendation-service/api/v3/api-docs",
-            "/payment-service/api/payment/IPN/vnpay"
+            "/payment-service/api/payment/IPN/vnpay",
+            "/user-service/api/user/confirm"
     };
 
     private static final String[] USER_ENDPOINT = {

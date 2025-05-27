@@ -16,4 +16,6 @@ public interface IUserService {
 
     ApiResponse<Void> updateUser(UpdateUserReq request);
 
+    ApiResponse<UserRes> confirmToken(String token);
+
 }
