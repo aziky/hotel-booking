@@ -16,6 +16,7 @@ import com.nls.userservice.infrastructure.external.client.RedisService;
 import com.nls.userservice.infrastructure.messaging.RabbitProducer;
 import com.nls.userservice.shared.exceptions.EntityNotFoundException;
 import com.nls.userservice.shared.mapper.UserMapper;
+import com.nls.userservice.shared.utils.AuditContext;
 import com.nls.userservice.shared.utils.JwtUtil;
 import com.nls.userservice.shared.utils.SecurityUtil;
 import jakarta.persistence.EntityExistsException;
@@ -44,6 +45,7 @@ public class UserService implements IUserService {
     final PasswordEncoder passwordEncoder;
     final RabbitProducer rabbitProducer;
     final RedisService redisService;
+    final AuditContext auditContext;
 
     @Value("${fe-url.confirm-token}")
     String CONFIRM_URL;
@@ -163,8 +165,7 @@ public class UserService implements IUserService {
             User user = redisService.get("REGISTER:" + token, User.class);
 
             log.info("Value from the redis {}", user);
-            user.setCreatedBy(user.getEmail());
-            user.setUpdatedBy(user.getEmail());
+            auditContext.setTemporaryUser(user.getEmail());
             userRepository.save(user);
 
             UserRes userRes = userMapper.convertToUserRes(user);
