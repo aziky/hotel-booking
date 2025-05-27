@@ -1,106 +1,106 @@
 services:
   # API Gateway Service
-  api-gateway:
-    build:
-      context: .
-    image: api-gateway-image
-    container_name: api-gateway
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev} # default profile dev
-      - RABBITMQ_HOST=rabbitmq
-      - REDIS_HOST=redis
-    depends_on:
-      - rabbitmq
-      - redis
-      - user-service
-      - booking-service
-      - payment-service
-      - notification-service
-      - recommendation-service
-
-  # User Service
-  user-service:
-    build:
-      context: .
-    image: user-service-image
-    container_name: user-service
-    ports:
-      - "8081:8081"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-
-  # Booking Service
-  booking-service:
-    build:
-      context: .
-    image: booking-service-image
-    container_name: booking-service
-    ports:
-      - "8082:8082"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bookingdb
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/exe_db
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-
-  # Payment Service
-  payment-service:
-    build:
-      context: .
-    image: payment-service-image
-    container_name: payment-service
-    ports:
-      - "8083:8083"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/paymentdb
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-
-  # Notification Service
-  notification-service:
-    build:
-      context: .
-    image: notification-service-image
-    container_name: notification-service
-    ports:
-      - "8084:8084"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-
-  # Recommendation Service
-  recommendation-service:
-    build:
-      context: .
-    image: recommendation-service-image
-    container_name: recommendation-service
-    ports:
-      - "8085:8085"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
+#  api-gateway:
+#    build:
+#      context: .
+#    image: api-gateway-image
+#    container_name: api-gateway
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev} # default profile dev
+#      - RABBITMQ_HOST=rabbitmq
+#      - REDIS_HOST=redis
+#    depends_on:
+#      - rabbitmq
+#      - redis
+#      - user-service
+#      - booking-service
+#      - payment-service
+#      - notification-service
+#      - recommendation-service
+#
+#  # User Service
+#  user-service:
+#    build:
+#      context: .
+#    image: user-service-image
+#    container_name: user-service
+#    ports:
+#      - "8081:8081"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
+#    depends_on:
+#      - redis
+#      - postgres
+#      - rabbitmq
+#
+#  # Booking Service
+#  booking-service:
+#    build:
+#      context: .
+#    image: booking-service-image
+#    container_name: booking-service
+#    ports:
+#      - "8082:8082"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
+##      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bookingdb
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/exe_db
+#      - SPRING_RABBITMQ_HOST=rabbitmq
+#    depends_on:
+#      - redis
+#      - postgres
+#      - rabbitmq
+#
+#  # Payment Service
+#  payment-service:
+#    build:
+#      context: .
+#    image: payment-service-image
+#    container_name: payment-service
+#    ports:
+#      - "8083:8083"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/paymentdb
+#      - SPRING_RABBITMQ_HOST=rabbitmq
+#    depends_on:
+#      - redis
+#      - postgres
+#      - rabbitmq
+#
+#  # Notification Service
+#  notification-service:
+#    build:
+#      context: .
+#    image: notification-service-image
+#    container_name: notification-service
+#    ports:
+#      - "8084:8084"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
+#      - SPRING_RABBITMQ_HOST=rabbitmq
+#    depends_on:
+#      - redis
+#      - postgres
+#      - rabbitmq
+#
+#  # Recommendation Service
+#  recommendation-service:
+#    build:
+#      context: .
+#    image: recommendation-service-image
+#    container_name: recommendation-service
+#    ports:
+#      - "8085:8085"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
+#      - SPRING_RABBITMQ_HOST=rabbitmq
+#    depends_on:
+#      - redis
+#      - postgres
+#      - rabbitmq
 
 
   # RabbitMQ Service
