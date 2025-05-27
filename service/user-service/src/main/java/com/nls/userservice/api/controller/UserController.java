@@ -27,4 +27,9 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> updateUserProfile(@RequestBody UpdateUserReq request) {
         return ResponseEntity.ok(userService.updateUser(request));
     }
+
+    @GetMapping("/confirm")
+    public ResponseEntity<ApiResponse<UserRes>> confirmToken(@RequestParam String token) {
+        return ResponseEntity.ok(userService.confirmToken(token));
+    }
 }

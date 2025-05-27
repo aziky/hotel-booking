@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,18 +34,19 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Slf4j
 public class UserService implements IUserService {
 
-    UserRepository userRepository;
-    UserMapper userMapper;
-    JwtUtil jwtUtil;
-    PasswordEncoder passwordEncoder;
-    RabbitProducer rabbitProducer;
-    RedisService redisService;
+    final UserRepository userRepository;
+    final UserMapper userMapper;
+    final JwtUtil jwtUtil;
+    final PasswordEncoder passwordEncoder;
+    final RabbitProducer rabbitProducer;
+    final RedisService redisService;
 
-    private final static String CONFIRM_URL = "http://localhost:8080/user-service/api/confirm?token=";
+    @Value("${fe-url.confirm-token}")
+    String CONFIRM_URL;
 
     @Override
     public ApiResponse<UserRes> login(LoginReq loginReq) {
@@ -105,7 +107,7 @@ public class UserService implements IUserService {
             user.setPasswordHash(passwordEncoder.encode(request.password()));
 
             String token = UUID.randomUUID().toString();
-            redisService.save("REGISTER:" + token, request, Duration.ofMinutes(15));
+            redisService.save("REGISTER:" + token, user, Duration.ofMinutes(15));
 
             String confirmLink = CONFIRM_URL + token;
             Map<String, String> payload = new HashMap<>();
@@ -150,6 +152,32 @@ public class UserService implements IUserService {
             return ApiResponse.success();
         } catch (Exception e) {
             log.error("Error at update user cause by {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
+    @Override
+    public ApiResponse<UserRes> confirmToken(String token) {
+        try {
+            log.info("Start confirm email with the token {}", token);
+            User user = redisService.get("REGISTER:" + token, User.class);
+
+            log.info("Value from the redis {}", user);
+            user.setCreatedBy(user.getEmail());
+            user.setUpdatedBy(user.getEmail());
+            userRepository.save(user);
+
+            UserRes userRes = userMapper.convertToUserRes(user);
+            userRes = userRes.withToken(jwtUtil.generateToken(
+                    String.valueOf(user.getId()),
+                    user.getEmail(),
+                    user.getRole()
+            ));
+
+            log.info("Create user successfully");
+            return ApiResponse.ok(userRes);
+        } catch (Exception e) {
+            log.error("Error at confirm token cause by {}", e.getMessage());
             return ApiResponse.internalError();
         }
     }
