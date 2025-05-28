@@ -44,5 +44,7 @@ public interface PropertyMapper {
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "dayPrices", ignore = true)
     @Mapping(target = "bookings", ignore = true)
+    @Mapping(target = "createdBy", source = "createdBy")
+    @Mapping(target = "updatedBy", source = "updatedBy")
     Property convertCreatePropertyReqToProperty(CreatePropertyReq request);
 }
