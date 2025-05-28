@@ -35,12 +35,15 @@ public class SecurityConfig {
             "/notification-service/api/v3/api-docs",
             "/recommendation-service/api/v3/api-docs",
             "/payment-service/api/payment/IPN/vnpay",
-            "/user-service/api/user/confirm"
+            "/user-service/api/user/confirm",
+            "/booking-service/api/property"
     };
 
     private static final String[] USER_ENDPOINT = {
             "/user-service/api/user",
-            "/booking-service/api/booking"
+            "/booking-service/api/booking",
+            "/booking-service/api/property/add",
+            "/booking-service/api/property/{propertyId}"
     };
 
 
