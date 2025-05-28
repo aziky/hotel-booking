@@ -34,6 +34,7 @@ public record CreatePropertyReq(
         LocalTime checkOutTime,
         String status,
         String createdBy,
-        String updatedBy
+        String updatedBy,
+        String imageUrl
 ) {
 }

@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public interface PropertyMapper {
@@ -47,4 +48,17 @@ public interface PropertyMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     Property convertCreatePropertyReqToProperty(CreatePropertyReq request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "propertyId", source = "propertyId")
+    @Mapping(target = "imageUrl", source = "request.imageUrl")
+    @Mapping(target = "caption", ignore = true)
+    @Mapping(target = "isPrimary", constant = "true")
+    @Mapping(target = "displayOrder", constant = "0")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", source = "request.createdBy")
+    @Mapping(target = "updatedBy", source = "request.updatedBy")
+    @Mapping(target = "property", ignore = true)
+    PropertyImage createPropertyImageFromRequest(CreatePropertyReq request, UUID propertyId);
 }
