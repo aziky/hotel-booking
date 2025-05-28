@@ -15,6 +15,10 @@ public record ApiResponse<T>(
         return new ApiResponse<>(HttpStatus.CREATED.value(),  data, "Created Successfully");
     }
 
+    public static <T> ApiResponse<T> created(T data, String message) {
+        return new ApiResponse<>(HttpStatus.CREATED.value(),  data, message);
+    }
+
     public static <T> ApiResponse<T> created() {
         return new ApiResponse<>(HttpStatus.CREATED.value(),  null, "Created Successfully");
     }

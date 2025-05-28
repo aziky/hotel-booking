@@ -1,17 +1,29 @@
 package com.nls.bookingservice.api.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import com.nls.bookingservice.api.dto.request.CreateBookingReq;
+import com.nls.bookingservice.api.dto.response.CreateBookingRes;
+import com.nls.bookingservice.application.IBookingService;
+import com.nls.common.dto.response.ApiResponse;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("booking")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class BookingController {
 
-    @GetMapping
-    public ResponseEntity<String> getUser() {
-        return ResponseEntity.ok("hello world");
+    IBookingService bookingService;
+
+    @PostMapping
+    public ApiResponse<CreateBookingRes> createBooking(@RequestBody CreateBookingReq request) {
+        return bookingService.createBooking(request);
     }
+
 
 }

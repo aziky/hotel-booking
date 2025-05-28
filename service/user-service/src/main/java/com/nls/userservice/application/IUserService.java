@@ -6,16 +6,16 @@ import com.nls.userservice.api.dto.request.LoginReq;
 import com.nls.userservice.api.dto.request.UpdateUserReq;
 import com.nls.userservice.api.dto.response.UserRes;
 
-import java.util.UUID;
-
 public interface IUserService {
 
     ApiResponse<UserRes> login(LoginReq loginReq);
 
-    ApiResponse<UserRes> getUserProfileByUserId(UUID userId);
+    ApiResponse<UserRes> getUserProfileByUserId();
 
     ApiResponse<Void> createUser(CreateUserReq request);
 
-    ApiResponse<Void> updateUser(UUID userId, UpdateUserReq request);
+    ApiResponse<Void> updateUser(UpdateUserReq request);
+
+    ApiResponse<UserRes> confirmToken(String token);
 
 }

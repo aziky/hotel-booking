@@ -24,7 +24,7 @@ public class OpenApiConfig {
         server.setDescription("Gateway");
 
         return new OpenAPI()
-                .info(new Info().title("User Service API").version("v1"))
+                .info(new Info().title("Notification Service API").version("v1"))
                 .addServersItem(server)
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
@@ -38,7 +38,7 @@ public class OpenApiConfig {
     }
 
     @Bean
-    public GroupedOpenApi notificationService() {
+    public GroupedOpenApi notificationServiceApi() {
         return GroupedOpenApi.builder()
                 .group("notification-service")
                 .pathsToMatch("/api/**")
