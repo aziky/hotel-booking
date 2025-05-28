@@ -34,15 +34,6 @@ jwt:
   issuer: NLS-Backend
   duration: 3600000
 
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-
 ---
 
 spring:
@@ -71,6 +62,59 @@ spring:
     port: 5672
     username: user
     password: password
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+fe-url:
+  confirm-token: http://localhost:8080/user-service/api/user/confirm?token=
+
+openapi:
+  server-url: http://localhost:8080/user-service/api
+
+---
+spring:
+  config:
+    activate:
+      on-profile: stag
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/hotel-booking
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        default_schema: user-service
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      connect-timeout: 6000
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: user
+    password: password
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
 
 fe-url:
   confirm-token: http://localhost:8080/user-service/api/user/confirm?token=

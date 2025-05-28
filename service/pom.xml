@@ -4,12 +4,21 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+<!--    <parent>-->
+<!--        <groupId>org.springframework.boot</groupId>-->
+<!--        <artifactId>spring-boot-starter-parent</artifactId>-->
+<!--        <version>3.2.5</version>-->
+<!--        <relativePath/>-->
+<!--    </parent>-->
+
     <groupId>com.nls</groupId>
     <artifactId>service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging> <!-- Đây là pom vì không chứa source code -->
 
     <modules>
+        <module>common</module>
+        <module>eureka-server</module>
         <module>api-gateway</module>
         <module>booking-service</module>
         <module>notification-service</module>
@@ -18,97 +27,119 @@
         <module>user-service</module>
     </modules>
 
-    <properties>
-        <java.version>21</java.version>
-        <spring.boot.version>3.4.5</spring.boot.version>
-        <spring.cloud.version>2023.0.0</spring.cloud.version>
-    </properties>
+    <!-- Profiles for different build environments -->
+<!--    <profiles>-->
+<!--        <profile>-->
+<!--            <id>docker</id>-->
+<!--            <activation>-->
+<!--                <file>-->
+<!--                    <exists>/app</exists>-->
+<!--                </file>-->
+<!--            </activation>-->
+<!--            <modules>-->
+<!--                <module>common</module>-->
+<!--                <module>eureka-server</module>-->
+<!--                <module>api-gateway</module>-->
+<!--                <module>booking-service</module>-->
+<!--                <module>notification-service</module>-->
+<!--                <module>payment-service</module>-->
+<!--                <module>recommendation-service</module>-->
+<!--                <module>user-service</module>-->
+<!--            </modules>-->
+<!--        </profile>-->
+<!--    </profiles>-->
 
-    <dependencyManagement>
+<!--    <properties>-->
+<!--        <java.version>21</java.version>-->
+<!--        <spring.boot.version>3.4.5</spring.boot.version>-->
+<!--        <spring.cloud.version>2023.0.0</spring.cloud.version>-->
+<!--    </properties>-->
 
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring.cloud.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
+<!--    <dependencyManagement>-->
 
-            <!-- Khai báo dependency chung cho tất cả service con -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>${spring.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-security</artifactId>
-                <version>${spring.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <version>${spring.boot.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-test</artifactId>
-                <version>5.8.0</version> <!-- Thay bằng phiên bản phù hợp với Spring Boot của bạn -->
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-                <version>2.5.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-data-jpa</artifactId>
-                <version>${spring.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>42.7.3</version>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.30</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+<!--        <dependencies>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.cloud</groupId>-->
+<!--                <artifactId>spring-cloud-dependencies</artifactId>-->
+<!--                <version>${spring.cloud.version}</version>-->
+<!--                <scope>import</scope>-->
+<!--                <type>pom</type>-->
+<!--            </dependency>-->
 
-    <build>
-        <plugins>
-            <!-- Lombok annotation processing configuration -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>21</source> <!-- JDK version -->
-                    <target>21</target> <!-- JDK version -->
-                    <release>21</release> <!-- Xác định phiên bản output -->
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.24</version> <!-- Added Lombok version for annotation processing -->
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+<!--            &lt;!&ndash; Khai báo dependency chung cho tất cả service con &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-starter-web</artifactId>-->
+<!--                <version>${spring.boot.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-starter-security</artifactId>-->
+<!--                <version>${spring.boot.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-starter-test</artifactId>-->
+<!--                <version>${spring.boot.version}</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.security</groupId>-->
+<!--                <artifactId>spring-security-test</artifactId>-->
+<!--                <version>5.8.0</version> &lt;!&ndash; Thay bằng phiên bản phù hợp với Spring Boot của bạn &ndash;&gt;-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springdoc</groupId>-->
+<!--                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>-->
+<!--                <version>2.5.0</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-starter-data-jpa</artifactId>-->
+<!--                <version>${spring.boot.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.postgresql</groupId>-->
+<!--                <artifactId>postgresql</artifactId>-->
+<!--                <version>42.7.3</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>org.projectlombok</groupId>-->
+<!--                <artifactId>lombok</artifactId>-->
+<!--                <version>1.18.30</version>-->
+<!--                <scope>provided</scope>-->
+<!--            </dependency>-->
+<!--        </dependencies>-->
+<!--    </dependencyManagement>-->
 
-            <!-- Spring Boot Maven Plugin for Spring Boot applications -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot.version}</version>
-            </plugin>
-        </plugins>
-    </build>
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            &lt;!&ndash; Lombok annotation processing configuration &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <version>3.11.0</version>-->
+<!--                <configuration>-->
+<!--                    <source>21</source> &lt;!&ndash; JDK version &ndash;&gt;-->
+<!--                    <target>21</target> &lt;!&ndash; JDK version &ndash;&gt;-->
+<!--                    <release>21</release> &lt;!&ndash; Xác định phiên bản output &ndash;&gt;-->
+<!--                    <annotationProcessorPaths>-->
+<!--                        <path>-->
+<!--                            <groupId>org.projectlombok</groupId>-->
+<!--                            <artifactId>lombok</artifactId>-->
+<!--                            <version>1.18.24</version> &lt;!&ndash; Added Lombok version for annotation processing &ndash;&gt;-->
+<!--                        </path>-->
+<!--                    </annotationProcessorPaths>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+
+<!--            &lt;!&ndash; Spring Boot Maven Plugin for Spring Boot applications &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--                <version>${spring.boot.version}</version>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
 </project>

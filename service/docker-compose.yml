@@ -1,106 +1,41 @@
 services:
-  # API Gateway Service
-  api-gateway:
-    build:
-      context: .
-    image: api-gateway-image
-    container_name: api-gateway
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev} # default profile dev
-      - RABBITMQ_HOST=rabbitmq
-      - REDIS_HOST=redis
-    depends_on:
-      - rabbitmq
-      - redis
-      - user-service
-      - booking-service
-      - payment-service
-      - notification-service
-      - recommendation-service
+  # Infrastructure Services First
 
-  # User Service
-  user-service:
-    build:
-      context: .
-    image: user-service-image
-    container_name: user-service
-    ports:
-      - "8081:8081"
+  # PostgreSQL Service (for all services)
+  postgres:
+    image: "postgres:latest"
+    container_name: postgres
     environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-
-  # Booking Service
-  booking-service:
-    build:
-      context: .
-    image: booking-service-image
-    container_name: booking-service
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
     ports:
-      - "8082:8082"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/bookingdb
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hotel-booking"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app-network
 
-  # Payment Service
-  payment-service:
-    build:
-      context: .
-    image: payment-service-image
-    container_name: payment-service
+  # Redis Service
+  redis:
+    image: "redis:7"
+    container_name: redis
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
     ports:
-      - "8083:8083"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/paymentdb
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-
-  # Notification Service
-  notification-service:
-    build:
-      context: .
-    image: notification-service-image
-    container_name: notification-service
-    ports:
-      - "8084:8084"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-
-  # Recommendation Service
-  recommendation-service:
-    build:
-      context: .
-    image: recommendation-service-image
-    container_name: recommendation-service
-    ports:
-      - "8085:8085"
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILE:-dev}
-      - SPRING_RABBITMQ_HOST=rabbitmq
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - app-network
 
   # RabbitMQ Service
   rabbitmq:
@@ -112,27 +47,197 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app-network
 
-  # Redis Service
-  redis:
-    image: "redis:latest"
-    container_name: redis
+  # Eureka Server (Service Registry)
+  eureka-server:
+    build:
+      context: .
+      dockerfile: ./eureka-server/Dockerfile
+    image: eureka-server-image
+    container_name: eureka-server
     ports:
-      - "6379:6379"
-
-  # PostgreSQL Service (for all services)
-  postgres:
-    image: "postgres:latest"
-    container_name: postgres
+      - "8761:8761"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=hotel-booking
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - app-network
+
+  # Application Services (depend on infrastructure being healthy)
+
+  # User Service
+  user-service:
+    build:
+      context: .
+      dockerfile: ./user-service/Dockerfile
+    image: user-service-image
+    container_name: user-service
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Booking Service
+  booking-service:
+    build:
+      context: .
+      dockerfile: ./booking-service/Dockerfile
+    image: booking-service-image
+    container_name: booking-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Payment Service
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./payment-service/Dockerfile
+    image: payment-service-image
+    container_name: payment-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Notification Service
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./notification-service/Dockerfile
+    image: notification-service-image
+    container_name: notification-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Recommendation Service
+  recommendation-service:
+    build:
+      context: .
+      dockerfile: ./recommendation-service/Dockerfile
+    image: recommendation-service-image
+    container_name: recommendation-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # API Gateway Service (starts last)
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    image: api-gateway-image
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      booking-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+      recommendation-service:
+        condition: service_started
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
     driver: local
+
+networks:
+  app-network:
+    driver: bridge
