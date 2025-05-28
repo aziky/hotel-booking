@@ -1,6 +1,7 @@
 package com.nls.bookingservice.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
@@ -26,8 +27,10 @@ public record CreatePropertyReq(
         Integer beds,
         BigDecimal bathrooms,
         @JsonFormat(pattern = "HH:mm")
+        @Schema(type = "string", pattern = "HH:mm", example = "14:00")
         LocalTime checkInTime,
         @JsonFormat(pattern = "HH:mm")
+        @Schema(type = "string", pattern = "HH:mm", example = "14:00")
         LocalTime checkOutTime,
         String status,
         String createdBy,

@@ -13,7 +13,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.LastModifiedBy;
+
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
@@ -84,11 +84,9 @@ public class Property {
     private BigDecimal bathrooms;
 
     @Column(name = "check_in_time")
-    @ColumnDefault("'15:00:00'")
     private LocalTime checkInTime;
 
     @Column(name = "check_out_time")
-    @ColumnDefault("'11:00:00'")
     private LocalTime checkOutTime;
 
     @Column(name = "status", length = 30)
@@ -104,7 +102,6 @@ public class Property {
 
     @Column(name = "updated_at")
     @UpdateTimestamp
-    @LastModifiedBy
     private LocalDateTime updatedAt;
 
     @Column(name = "updated_by", length = 50)
