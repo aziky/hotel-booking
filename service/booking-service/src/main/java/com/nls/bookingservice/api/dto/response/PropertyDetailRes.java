@@ -46,6 +46,7 @@ public record PropertyDetailRes(
         List<PropertyImageRes> images,
         List<PropertyAmenityRes> amenities,
         List<PropertyCategoryRes> categories,
-        List<PropertyDayPriceRes> dayPrices
+        List<PropertyDayPriceRes> dayPrices,
+        Double rating
 ) {
 }

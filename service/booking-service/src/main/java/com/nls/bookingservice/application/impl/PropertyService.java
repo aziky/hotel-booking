@@ -5,6 +5,8 @@ import com.nls.bookingservice.api.dto.response.PagedPropertyRes;
 import com.nls.bookingservice.api.dto.response.PropertyRes;
 import com.nls.bookingservice.application.IPropertyService;
 import com.nls.bookingservice.domain.entity.Property;
+import com.nls.bookingservice.domain.entity.PropertyImage;
+import com.nls.bookingservice.domain.repository.PropertyImageRepository;
 import com.nls.bookingservice.domain.repository.PropertyRepository;
 import com.nls.bookingservice.shared.base.ApiResponse;
 import com.nls.bookingservice.shared.mapper.PropertyMapper;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -25,6 +28,7 @@ import java.util.UUID;
 public class PropertyService implements IPropertyService {
 
     PropertyRepository propertyRepository;
+    PropertyImageRepository propertyImageRepository;
     PropertyMapper propertyMapper;
 
     @Override
@@ -44,12 +48,20 @@ public class PropertyService implements IPropertyService {
     }
 
     @Override
+    @Transactional
     public ApiResponse<PropertyRes> addProperty(CreatePropertyReq request) {
         try {
             log.info("Start add property with the request {}", request);
 
             Property property = propertyMapper.convertCreatePropertyReqToProperty(request);
             property = propertyRepository.save(property);
+
+            // If image URL is provided, create a PropertyImage entity using mapper
+            if (request.imageUrl() != null && !request.imageUrl().isEmpty()) {
+                PropertyImage propertyImage = propertyMapper.createPropertyImageFromRequest(request, property.getId());
+                propertyImageRepository.save(propertyImage);
+                log.info("Added property image with URL: {}", request.imageUrl());
+            }
 
             log.info("Add property successfully with id {}", property.getId());
             return ApiResponse.created(propertyMapper.convertToPropertyRes(property));
