@@ -35,14 +35,7 @@ vnpay:
   vnp-command: pay
   vnp-version: 2.1.0
 
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
+
 
 ---
 
@@ -68,6 +61,55 @@ web-url:
   host: http://localhost:3000
   payment-success: /payment/success
   payment-fail: /payment/fail
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+
+openapi:
+  server-url: http://localhost:8080/payment-service/api
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: stag
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/hotel-booking
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        default_schema: payment-service
+
+vnpay:
+  response-host: http://localhost:8080
+
+web-url:
+  host: http://localhost:3000
+  payment-success: /payment/success
+  payment-fail: /payment/fail
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
 
 openapi:
   server-url: http://localhost:8080/payment-service/api
