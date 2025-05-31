@@ -5,15 +5,14 @@ import com.nls.common.dto.response.ApiResponse;
 import com.nls.common.enumration.QueueName;
 import com.nls.common.enumration.Role;
 import com.nls.common.enumration.TypeEmail;
-import com.nls.userservice.api.dto.request.CreateUserReq;
-import com.nls.userservice.api.dto.request.LoginReq;
-import com.nls.userservice.api.dto.request.UpdateUserReq;
+import com.nls.userservice.api.dto.request.*;
 import com.nls.userservice.api.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
 import com.nls.userservice.domain.entity.User;
 import com.nls.userservice.domain.repository.UserRepository;
 import com.nls.userservice.infrastructure.external.client.RedisService;
 import com.nls.userservice.infrastructure.messaging.RabbitProducer;
+import com.nls.userservice.infrastructure.properties.FeProperties;
 import com.nls.userservice.shared.exceptions.EntityNotFoundException;
 import com.nls.userservice.shared.mapper.UserMapper;
 import com.nls.userservice.shared.utils.AuditContext;
@@ -24,7 +23,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,9 +44,7 @@ public class UserService implements IUserService {
     final RabbitProducer rabbitProducer;
     final RedisService redisService;
     final AuditContext auditContext;
-
-    @Value("${fe-url.confirm-token}")
-    String CONFIRM_URL;
+    final FeProperties feProperties;
 
     @Override
     public ApiResponse<UserRes> login(LoginReq loginReq) {
@@ -87,7 +83,7 @@ public class UserService implements IUserService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User not found with userId " + userId));
             return ApiResponse.ok(userMapper.convertToUserRes(user));
-        } catch (EntityNotFoundException e ) {
+        } catch (EntityNotFoundException e) {
             log.warn("Get user profile failed cause by {}", e.getMessage());
             return ApiResponse.notFound(e.getMessage(), null);
         } catch (Exception e) {
@@ -99,7 +95,7 @@ public class UserService implements IUserService {
     @Override
     public ApiResponse<Void> createUser(CreateUserReq request) {
         try {
-            log.info("Start create user with the request {}", request);
+            log.info("Start create user with the request");
             if (userRepository.existsUserByEmail(request.email())) {
                 throw new EntityExistsException("Already exist the user with this email " + request.email());
             }
@@ -111,24 +107,24 @@ public class UserService implements IUserService {
             String token = UUID.randomUUID().toString();
             redisService.save("REGISTER:" + token, user, Duration.ofMinutes(15));
 
-            String confirmLink = CONFIRM_URL + token;
+            String confirmLink = feProperties.host() + feProperties.confirmToken() + token;
             Map<String, String> payload = new HashMap<>();
             payload.put("firstName", request.firstName());
             payload.put("confirmLink", confirmLink);
 
-            NotificationMessage notificationMessage =  NotificationMessage.builder()
+            NotificationMessage notificationMessage = NotificationMessage.builder()
                     .to(request.email())
                     .type(TypeEmail.EMAIL_CONFIRM.name())
                     .payload(payload)
                     .build();
 
             log.info("Start send email to rabbit");
-            rabbitProducer.sendEmailConfirm(
+            rabbitProducer.sendEmail(
                     QueueName.EMAIL_CONFIRM_OTP.getExchangeName(),
                     QueueName.EMAIL_CONFIRM_OTP.getRoutingKey(),
                     notificationMessage);
 
-            log.info("Send to rabbit successfully");
+            log.info("Send to rabbit successfully for create user");
             return ApiResponse.created(null, "Registration successful. Check your email.");
         } catch (EntityExistsException e) {
             log.error(e.getMessage());
@@ -182,4 +178,75 @@ public class UserService implements IUserService {
             return ApiResponse.internalError();
         }
     }
+
+    @Override
+    public ApiResponse<Void> forgetPassword(ForgetPasswordReq request) {
+        try {
+            log.info("Start handle forget password request {}", request);
+            User user = userRepository.findByEmail(request.email())
+                    .orElseThrow(() -> new EntityExistsException("User not found with user email " + request.email()));
+
+            String token = UUID.randomUUID().toString();
+            Map<String, String> payload = new HashMap<>();
+            payload.put("resetLink", feProperties.host() + feProperties.forgetPassword() + token);
+            payload.put("firstName", user.getFirstName());
+
+            auditContext.setTemporaryUser(request.email());
+
+            log.info("Start saving into redis with {}", token);
+            redisService.save("RESET-PASSWORD:" + token, user.getId(), Duration.ofMinutes(15));
+
+            NotificationMessage notificationMessage = NotificationMessage.builder()
+                    .to(request.email())
+                    .type(TypeEmail.EMAIL_FORGET_PASSWORD.name())
+                    .payload(payload)
+                    .build();
+
+            rabbitProducer.sendEmail(
+                    QueueName.EMAIL_FORGET_PASSWORD.getExchangeName(),
+                    QueueName.EMAIL_FORGET_PASSWORD.getRoutingKey(),
+                    notificationMessage
+            );
+
+            log.info("Send to rabbit successfully for reset password");
+            return ApiResponse.ok(null, "Send email to reset password");
+        } catch (EntityNotFoundException e) {
+            log.error("Forget password failed cause by {}", e.getMessage());
+            return ApiResponse.notFound(e.getMessage(), null);
+        } catch (Exception e) {
+            log.error("Error at forget password cause by {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
+    @Override
+    public ApiResponse<UserRes> resetPassword(ResetPasswordReq request) {
+        try {
+            log.info("Start handle reset password");
+            String userId = redisService.get("RESET-PASSWORD:" + request.token(), String.class);
+
+            if (userId == null) {
+                throw new IllegalArgumentException("Reset token is invalid or has expired.");
+            }
+
+            User user = userRepository.findById(UUID.fromString(userId)).get();
+            auditContext.setTemporaryUser(user.getEmail());
+            user.setPasswordHash(passwordEncoder.encode(request.password()));
+            userRepository.save(user);
+
+            log.info("Reset password successfully");
+            UserRes userRes = userMapper.convertToUserRes(user);
+            userRes = userRes.withToken(jwtUtil.generateToken(user.getId().toString(), user.getEmail(), user.getRole()));
+
+            return ApiResponse.ok(userRes);
+        } catch (IllegalArgumentException e) {
+            log.error("Reset password failed cause by {}", e.getMessage());
+            return ApiResponse.badRequest(e.getMessage());
+        }
+        catch (Exception e) {
+            log.error("Error at reset password cause by {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
 }

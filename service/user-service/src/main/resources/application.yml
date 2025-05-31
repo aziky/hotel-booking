@@ -74,7 +74,9 @@ eureka:
     prefer-ip-address: true
 
 fe-url:
-  confirm-token: http://localhost:8080/user-service/api/user/confirm?token=
+  host: http://localhost:8080/user-service/api
+  confirm-token: /user/confirm?token=
+  forget-password: /user/reset-password?token=
 
 openapi:
   server-url: http://localhost:8080/user-service/api
@@ -117,7 +119,9 @@ eureka:
     prefer-ip-address: true
 
 fe-url:
-  confirm-token: http://localhost:8080/user-service/api/user/confirm?token=
+  host: http://localhost:8080/user-service/api
+  confirm-token: /user/confirm?token=
+  forget-password: /user/reset-password?token=
 
 openapi:
   server-url: http://localhost:8080/user-service/api
