@@ -26,9 +26,6 @@ springdoc:
     default-model-expand-depth: 10
     display-operation-id: true
 
-openapi:
-  server-url: http://localhost:8080/recommendataion-service/api
-
 
 ---
 
@@ -56,6 +53,9 @@ eureka:
   instance:
     prefer-ip-address: true
 
+openapi:
+  server-url: http://localhost:8080/recommendation-service/api
+
 ---
 
 spring:
@@ -64,21 +64,23 @@ spring:
       on-profile: stag
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/hotel-booking
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     properties:
       hibernate:
-        default_schema: recommendation-service
+        default_schema: ${SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA}
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}
   instance:
     prefer-ip-address: true
 
+openapi:
+  server-url: ${OPENAPI_SERVER_URL}

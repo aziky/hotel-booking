@@ -87,21 +87,21 @@ spring:
       on-profile: stag
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/hotel-booking
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     properties:
       hibernate:
-        default_schema: notification-service
+        default_schema: ${SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA}
 
   # Mailjet Configuration
   mail:
-    host: in-v3.mailjet.com
-    port: 587
-    username: d03b54669cfdc86e588d61b12c23f090
-    password: 0c54d42e5becc1575bc99d3bd97fe612
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -109,22 +109,22 @@ spring:
           starttls:
             enable: true
           ssl:
-            trust: in-v3.mailjet.com
+            trust: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST}
 
   rabbitmq:
-    host: rabbitmq
-    port: 5672
-    username: user
-    password: password
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}
   instance:
     prefer-ip-address: true
 
 openapi:
-  server-url: http://localhost:8080/notification-service/api
+  server-url: ${OPENAPI_SERVER_URL}
