@@ -1,18 +1,17 @@
 services:
-  # Infrastructure Services First
-
-  # PostgreSQL Service (for all services)
   postgres:
     image: "postgres:latest"
     container_name: postgres
     environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DB=${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d hotel-booking"]
+      test: ["CMD-SHELL", "pg_isready -U nlshotelbooking -d hotel-booking"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -20,14 +19,13 @@ services:
     networks:
       - app-network
 
-  # Redis Service
   redis:
     image: "redis:7"
     container_name: redis
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -37,16 +35,15 @@ services:
     networks:
       - app-network
 
-  # RabbitMQ Service
   rabbitmq:
     image: "rabbitmq:management"
     container_name: rabbitmq
     ports:
-      - "5672:5672"   # RabbitMQ default port
-      - "15672:15672" # RabbitMQ management console
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
     environment:
-      - RABBITMQ_DEFAULT_USER=user
-      - RABBITMQ_DEFAULT_PASS=password
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
@@ -57,7 +54,6 @@ services:
     networks:
       - app-network
 
-  # Eureka Server (Service Registry)
   eureka-server:
     build:
       context: .
@@ -84,9 +80,7 @@ services:
     networks:
       - app-network
 
-  # Application Services (depend on infrastructure being healthy)
 
-  # User Service
   user-service:
     build:
       context: .
@@ -109,7 +103,6 @@ services:
     networks:
       - app-network
 
-  # Booking Service
   booking-service:
     build:
       context: .
@@ -132,7 +125,6 @@ services:
     networks:
       - app-network
 
-  # Payment Service
   payment-service:
     build:
       context: .
@@ -155,7 +147,6 @@ services:
     networks:
       - app-network
 
-  # Notification Service
   notification-service:
     build:
       context: .
@@ -178,7 +169,6 @@ services:
     networks:
       - app-network
 
-  # Recommendation Service
   recommendation-service:
     build:
       context: .
@@ -201,7 +191,6 @@ services:
     networks:
       - app-network
 
-  # API Gateway Service (starts last)
   api-gateway:
     build:
       context: .

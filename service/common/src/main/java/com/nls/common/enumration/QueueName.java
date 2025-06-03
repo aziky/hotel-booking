@@ -12,6 +12,12 @@ public enum QueueName {
             "email.confirm.payment.queue",
             "email.exchange",
             "email.confirm.payment"
+    ),
+
+    EMAIL_FORGET_PASSWORD(
+            "email.forget.password.queue",
+            "email.exchange",
+            "email.forget.password"
     );
 
     private final String queueName;

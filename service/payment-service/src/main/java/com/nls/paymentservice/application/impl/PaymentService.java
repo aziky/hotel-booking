@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +30,7 @@ public class PaymentService implements IPaymentService {
     IVnpayGateway vnpayGateway;
 
 
+    @Transactional
     @Override
     public ApiResponse<CreatePaymentRes> createPayment(CreatePaymentReq request) {
         try {
@@ -61,6 +63,7 @@ public class PaymentService implements IPaymentService {
     }
 
     @Override
+    @Transactional
     public String handleVnpResponse(Map<String, String> params) {
         log.info("Start handle vnp response with response: {}", params);
 
@@ -74,6 +77,7 @@ public class PaymentService implements IPaymentService {
 
         Payment payment = paymentOpt.get();
         payment.setPaymentStatus(result.success() ? PaymentStatus.PAID.name() : PaymentStatus.FAILED.name());
+
         paymentRepository.save(payment);
 
         return result.redirectUrl();
