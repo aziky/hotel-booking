@@ -10,5 +10,6 @@ RUN mvn clean package -DskipTests -f /app/pom.xml -pl eureka-server,common
 FROM eclipse-temurin:21-jre
 WORKDIR /usr/src/app
 COPY --from=builder /app/eureka-server/target/eureka-server-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/eureka-server/.env .env
 EXPOSE 8761
 ENTRYPOINT ["java", "-jar", "app.jar"]

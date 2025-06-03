@@ -13,5 +13,6 @@ RUN mvn clean package -DskipTests -f /app/pom.xml -pl recommendation-service,com
 FROM eclipse-temurin:21-jre
 WORKDIR /usr/src/app
 COPY --from=builder /app/recommendation-service/target/recommendation-service-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/recommendation-service/.env .env
 EXPOSE 8084
 ENTRYPOINT ["java", "-jar", "app.jar"]

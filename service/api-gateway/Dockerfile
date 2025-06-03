@@ -10,5 +10,6 @@ RUN mvn clean package -DskipTests -f /app/pom.xml -pl api-gateway,common
 FROM eclipse-temurin:21-jre
 WORKDIR /usr/src/app
 COPY --from=builder /app/api-gateway/target/api-gateway-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/api-gateway/.env .env
 EXPOSE 8084
 ENTRYPOINT ["java", "-jar", "app.jar"]
