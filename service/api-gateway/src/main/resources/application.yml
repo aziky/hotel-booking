@@ -60,7 +60,7 @@ springdoc:
         url: /notification-service/api/v3/api-docs
       - name: Recommendation Service
         url: /recommendation-service/api/v3/api-docs
-x
+
 ---
 spring:
   config:
