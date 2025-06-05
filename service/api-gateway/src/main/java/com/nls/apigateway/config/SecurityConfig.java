@@ -41,14 +41,15 @@ public class SecurityConfig {
             USER_PREFIX + "/user/forget-password",
             USER_PREFIX + "/user/reset-password",
             PAYMENT_PREFIX + "/payment/IPN/vnpay",
-            BOOKING_PREFIX + "/property"
+            BOOKING_PREFIX + "/property",
+            BOOKING_PREFIX + "/property/{propertyId}"
     };
 
     private static final String[] USER_ENDPOINT = {
             USER_PREFIX + "/user",
             BOOKING_PREFIX + "/booking",
             BOOKING_PREFIX + "/property/add",
-            BOOKING_PREFIX + "/property/{propertyId}"
+
     };
 
 
