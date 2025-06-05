@@ -1,6 +1,7 @@
 package com.nls.bookingservice.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nls.bookingservice.domain.entity.PropertyStatus;
 import lombok.Builder;
 import lombok.With;
 
@@ -36,7 +37,7 @@ public record PropertyDetailRes(
         LocalTime checkInTime,
         @JsonFormat(pattern = "HH:mm:ss")
         LocalTime checkOutTime,
-        String status,
+        PropertyStatus status,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt,
         String createdBy,

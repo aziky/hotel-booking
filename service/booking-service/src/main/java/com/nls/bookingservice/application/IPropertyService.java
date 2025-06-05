@@ -1,6 +1,7 @@
 package com.nls.bookingservice.application;
 
 import com.nls.bookingservice.api.dto.request.CreatePropertyReq;
+import com.nls.bookingservice.api.dto.request.UpdatePropertyReq;
 import com.nls.bookingservice.api.dto.response.PagedPropertyRes;
 import com.nls.bookingservice.api.dto.response.PropertyRes;
 import com.nls.bookingservice.shared.base.ApiResponse;
@@ -16,4 +17,7 @@ public interface IPropertyService {
 
     ApiResponse<PagedPropertyRes> getProperties(Pageable pageable);
 
+    ApiResponse<PropertyRes> updateProperty(UpdatePropertyReq request);
+
+    ApiResponse<PropertyRes> deleteProperty(UUID propertyId);
 }

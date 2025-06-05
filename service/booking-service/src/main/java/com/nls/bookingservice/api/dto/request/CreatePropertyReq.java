@@ -32,7 +32,7 @@ public record CreatePropertyReq(
         @JsonFormat(pattern = "HH:mm")
         @Schema(type = "string", pattern = "HH:mm", example = "14:00")
         LocalTime checkOutTime,
-        String status,
+        String imageUrl,
         String createdBy,
         String updatedBy
 ) {

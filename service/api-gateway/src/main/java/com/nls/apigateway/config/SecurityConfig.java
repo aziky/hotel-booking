@@ -43,6 +43,7 @@ public class SecurityConfig {
             "/user-service/api/user",
             "/booking-service/api/booking",
             "/booking-service/api/property/add",
+            "/booking-service/api/property/update",
             "/booking-service/api/property/{propertyId}"
     };
 

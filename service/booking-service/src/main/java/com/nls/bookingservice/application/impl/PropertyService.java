@@ -1,11 +1,13 @@
 package com.nls.bookingservice.application.impl;
 
 import com.nls.bookingservice.api.dto.request.CreatePropertyReq;
+import com.nls.bookingservice.api.dto.request.UpdatePropertyReq;
 import com.nls.bookingservice.api.dto.response.PagedPropertyRes;
 import com.nls.bookingservice.api.dto.response.PropertyRes;
 import com.nls.bookingservice.application.IPropertyService;
 import com.nls.bookingservice.domain.entity.Property;
 import com.nls.bookingservice.domain.entity.PropertyImage;
+import com.nls.bookingservice.domain.entity.PropertyStatus;
 import com.nls.bookingservice.domain.repository.PropertyImageRepository;
 import com.nls.bookingservice.domain.repository.PropertyRepository;
 import com.nls.bookingservice.shared.base.ApiResponse;
@@ -84,6 +86,53 @@ public class PropertyService implements IPropertyService {
             return ApiResponse.ok(pagedPropertyRes);
         } catch (Exception e) {
             log.error("Error at get properties cause by {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<PropertyRes> updateProperty(UpdatePropertyReq request) {
+        try {
+            log.info("Start update property with id {}", request.id());
+
+            Property property = propertyRepository.findById(request.id())
+                    .orElseThrow(() -> new RuntimeException("Property not found with id " + request.id()));
+
+            propertyMapper.updatePropertyFromReq(request, property);
+            property = propertyRepository.save(property);
+
+            log.info("Update property successfully with id {}", property.getId());
+            return ApiResponse.ok(propertyMapper.convertToPropertyRes(property));
+        } catch (RuntimeException e) {
+            log.warn("Update property failed cause by {}", e.getMessage());
+            return ApiResponse.notFound(e.getMessage(), null);
+        } catch (Exception e) {
+            log.error("Error at update property cause by {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
+    @Override
+    @Transactional
+    public ApiResponse<PropertyRes> deleteProperty(UUID propertyId) {
+        try {
+            log.info("Start delete property with id {}", propertyId);
+
+            Property property = propertyRepository.findById(propertyId)
+                    .orElseThrow(() -> new RuntimeException("Property not found with id " + propertyId));
+
+            // Change status to INACTIVE instead of physically deleting
+            property.setStatus(PropertyStatus.INACTIVE);
+            property = propertyRepository.save(property);
+
+            log.info("Delete property (set to INACTIVE) successfully with id {}", property.getId());
+            return ApiResponse.ok(propertyMapper.convertToPropertyRes(property));
+        } catch (RuntimeException e) {
+            log.warn("Delete property failed cause by {}", e.getMessage());
+            return ApiResponse.notFound(e.getMessage(), null);
+        } catch (Exception e) {
+            log.error("Error at delete property cause by {}", e.getMessage());
             return ApiResponse.internalError();
         }
     }

@@ -90,7 +90,8 @@ public class Property {
     private LocalTime checkOutTime;
 
     @Column(name = "status", length = 30)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PropertyStatus status;
 
     @Column(name = "created_at")
     @CreationTimestamp
