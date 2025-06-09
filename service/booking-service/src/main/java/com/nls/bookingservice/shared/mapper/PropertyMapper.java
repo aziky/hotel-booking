@@ -1,5 +1,7 @@
 package com.nls.bookingservice.shared.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nls.bookingservice.api.dto.request.CreatePropertyReq;
 import com.nls.bookingservice.api.dto.request.UpdatePropertyReq;
 import com.nls.bookingservice.api.dto.response.*;
@@ -7,13 +9,26 @@ import com.nls.bookingservice.domain.entity.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public interface PropertyMapper {
+
+    ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @Named("mapToJson")
+    default String mapToJson(Map<String, String> map) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error converting map to JSON", e);
+        }
+    }
 
     PropertyRes convertToPropertyRes(Property property);
 
@@ -50,6 +65,7 @@ public interface PropertyMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "status", expression = "java(com.nls.bookingservice.domain.entity.PropertyStatus.ACTIVE)")
+    @Mapping(target = "pricePerNight", source = "pricePerNight", qualifiedByName = "mapToJson")
     Property convertCreatePropertyReqToProperty(CreatePropertyReq request);
 
     @Mapping(target = "id", ignore = true)
@@ -62,6 +78,7 @@ public interface PropertyMapper {
     @Mapping(target = "categories", ignore = true)
     @Mapping(target = "dayPrices", ignore = true)
     @Mapping(target = "bookings", ignore = true)
+    @Mapping(target = "pricePerNight", source = "pricePerNight", qualifiedByName = "mapToJson")
     void updatePropertyFromReq(UpdatePropertyReq request, @MappingTarget Property property);
 
     @Mapping(target = "id", ignore = true)

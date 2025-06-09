@@ -58,7 +58,6 @@ public class PropertyService implements IPropertyService {
             Property property = propertyMapper.convertCreatePropertyReqToProperty(request);
             property = propertyRepository.save(property);
 
-            // If image URL is provided, create a PropertyImage entity using mapper
             if (request.imageUrl() != null && !request.imageUrl().isEmpty()) {
                 PropertyImage propertyImage = propertyMapper.createPropertyImageFromRequest(request, property.getId());
                 propertyImageRepository.save(propertyImage);

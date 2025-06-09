@@ -65,7 +65,7 @@ public class Property {
     private BigDecimal longitude;
 
     @Column(name = "price_per_night", nullable = false, precision = 10, scale = 2)
-    private BigDecimal pricePerNight;
+    private String pricePerNight;
 
     @Column(name = "service_fee", precision = 10, scale = 2)
     @ColumnDefault("0")

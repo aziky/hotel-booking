@@ -8,6 +8,7 @@ import lombok.With;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Map;
 import java.util.UUID;
 
 @With
@@ -26,7 +27,7 @@ public record PropertyRes(
         String zipCode,
         BigDecimal latitude,
         BigDecimal longitude,
-        BigDecimal pricePerNight,
+        String pricePerNight,
         BigDecimal serviceFee,
         Integer maxGuests,
         Integer bedrooms,

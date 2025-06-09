@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.Map;
 import java.util.UUID;
 
 public record CreatePropertyReq(
@@ -20,7 +21,7 @@ public record CreatePropertyReq(
         String zipCode,
         BigDecimal latitude,
         BigDecimal longitude,
-        BigDecimal pricePerNight,
+        Map<String, String> pricePerNight,
         BigDecimal serviceFee,
         Integer maxGuests,
         Integer bedrooms,
