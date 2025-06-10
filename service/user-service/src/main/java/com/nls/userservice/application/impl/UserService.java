@@ -25,6 +25,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -92,6 +93,7 @@ public class UserService implements IUserService {
         }
     }
 
+    @Transactional
     @Override
     public ApiResponse<Void> createUser(CreateUserReq request) {
         try {
@@ -135,6 +137,7 @@ public class UserService implements IUserService {
         }
     }
 
+    @Transactional
     @Override
     public ApiResponse<Void> updateUser(UpdateUserReq request) {
         try {
@@ -154,6 +157,7 @@ public class UserService implements IUserService {
         }
     }
 
+    @Transactional
     @Override
     public ApiResponse<UserRes> confirmToken(String token) {
         try {
@@ -219,6 +223,7 @@ public class UserService implements IUserService {
         }
     }
 
+    @Transactional
     @Override
     public ApiResponse<UserRes> resetPassword(ResetPasswordReq request) {
         try {
