@@ -19,8 +19,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Queue emailConfirmPaymentQueue() {
-        return new Queue(QueueName.EMAIL_CONFIRM_PAYMENT.getQueueName());
+    public Queue emailForgetPasswordQueue() {
+        return new Queue(QueueName.EMAIL_FORGET_PASSWORD.getQueueName());
     }
 
     @Bean
@@ -37,11 +37,11 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding bindingEmailPayment() {
+    public Binding bindingEmailForgetPassword() {
         return BindingBuilder
-                .bind(emailConfirmPaymentQueue())
+                .bind(emailForgetPasswordQueue())
                 .to(emailExchange())
-                .with(QueueName.EMAIL_CONFIRM_PAYMENT.getRoutingKey());
+                .with(QueueName.EMAIL_FORGET_PASSWORD.getRoutingKey());
     }
 
     @Bean

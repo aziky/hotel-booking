@@ -80,6 +80,11 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>me.paulschwarz</groupId>
+			<artifactId>spring-dotenv</artifactId>
+			<version>4.0.0</version>
+		</dependency>
 
 	</dependencies>
 
@@ -130,4 +135,3 @@
 	</dependencyManagement>
 
 </project>
-

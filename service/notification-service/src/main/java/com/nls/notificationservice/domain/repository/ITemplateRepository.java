@@ -7,6 +7,6 @@ import java.util.UUID;
 
 public interface ITemplateRepository extends JpaRepository<Template, UUID> {
 
-    Template findByType(String type);
+    Template findByTypeAndStatusIsTrue(String type);
 
 }

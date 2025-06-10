@@ -7,6 +7,7 @@ import com.nls.notificationservice.domain.entity.Template;
 import com.nls.notificationservice.domain.repository.INotificationRepository;
 import com.nls.notificationservice.domain.repository.ITemplateRepository;
 import com.nls.notificationservice.infrastructure.external.client.EmailService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -31,7 +32,10 @@ public class NotificationService implements INotificationService {
     public void sendEmail(NotificationMessage notificationMessage) {
         try {
             log.info("Sending email notification to: {}", notificationMessage.to());
-            Template template = templateRepository.findByType(notificationMessage.type());
+            Template template = templateRepository.findByTypeAndStatusIsTrue(notificationMessage.type());
+
+            if (template == null) { throw new EntityNotFoundException("Template not found");}
+
             String subject = templateMapping(template.getSubject(), notificationMessage.payload());
             String body = templateMapping(template.getContent(), notificationMessage.payload());
 

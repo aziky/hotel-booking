@@ -27,16 +27,6 @@ springdoc:
     display-operation-id: true
 
 
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
-
 ---
 
 spring:
@@ -54,6 +44,43 @@ spring:
       hibernate:
         default_schema: recommendation-service
 
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
 
 openapi:
-  server-url: http://localhost:8080/recommendataion-service/api
+  server-url: http://localhost:8080/recommendation-service/api
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: stag
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        default_schema: ${SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA}
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE}
+  instance:
+    prefer-ip-address: true
+
+openapi:
+  server-url: ${OPENAPI_SERVER_URL}

@@ -9,7 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
+    <groupId>com.nls</groupId>
     <artifactId>api-gateway</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
     <name>Api Gateway</name>
     <description>Api Gateway</description>
 
@@ -91,6 +93,12 @@
             <groupId>com.nls</groupId>
             <artifactId>common</artifactId>
             <version>${common.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
         </dependency>
 
     </dependencies>

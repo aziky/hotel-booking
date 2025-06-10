@@ -16,7 +16,7 @@ public class RabbitProducer {
 
     RabbitTemplate rabbitTemplate;
 
-    public void sendEmailConfirm(String exchangeName, String routingKey, NotificationMessage message ) {
+    public void sendEmail(String exchangeName, String routingKey, NotificationMessage message ) {
         rabbitTemplate.convertAndSend(exchangeName, routingKey, message);
     }
 

@@ -1,35 +1,15 @@
-# Bước 1: Sử dụng image JDK với Maven để biên dịch ứng dụng
 FROM maven:3.9.6-eclipse-temurin-21 AS builder
-
-
-# Đặt thư mục làm việc trong container
 WORKDIR /app
 
-# Copy parent POM (quan trọng)
-COPY ../pom.xml ../pom.xml
+# Copy toàn bộ project để Maven có thể resolve dependency giữa modules
+COPY . /app
 
-# Sao chép pom.xml vào container để cache dependencies
-COPY pom.xml .
+# Build only notification-service and its dependency: common
+RUN mvn clean package -DskipTests -f /app/pom.xml -pl notification-service,common
 
-# Sao chép mã nguồn vào container
-COPY src /app/src
-
-# Biên dịch ứng dụng và tạo file JAR
-RUN mvn clean package -DskipTests
-
-# Bước 2: Sử dụng image JRE để chạy ứng dụng
 FROM eclipse-temurin:21-jre
-
-# Đặt thư mục làm việc trong container
-WORKDIR /app
-
-# Sao chép file JAR đã biên dịch từ image builder
-COPY --from=builder /app/target/*.jar /app/app.jar
-
-#EXPOSE ${SERVER_PORT}
+WORKDIR /usr/src/app
+COPY --from=builder /app/notification-service/target/notification-service-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=builder /app/notification-service/.env .env
 EXPOSE 8084
-
-# Chạy ứng dụng khi container khởi động
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-# Cổng mà ứng dụng sẽ lắng nghe
-
+ENTRYPOINT ["java", "-jar", "app.jar"]

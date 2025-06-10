@@ -1,6 +1,8 @@
 package com.nls.userservice.api.controller;
 
 import com.nls.common.dto.response.ApiResponse;
+import com.nls.userservice.api.dto.request.ForgetPasswordReq;
+import com.nls.userservice.api.dto.request.ResetPasswordReq;
 import com.nls.userservice.api.dto.request.UpdateUserReq;
 import com.nls.userservice.api.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
@@ -31,5 +33,15 @@ public class UserController {
     @GetMapping("/confirm")
     public ResponseEntity<ApiResponse<UserRes>> confirmToken(@RequestParam String token) {
         return ResponseEntity.ok(userService.confirmToken(token));
+    }
+
+    @PostMapping("/forget-password")
+    public ResponseEntity<ApiResponse<Void>> forgetPassword(@RequestBody ForgetPasswordReq request) {
+        return ResponseEntity.ok(userService.forgetPassword(request));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<UserRes>> resetPassword(@RequestBody ResetPasswordReq request) {
+        return ResponseEntity.ok(userService.resetPassword(request));
     }
 }

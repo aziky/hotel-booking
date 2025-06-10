@@ -29,4 +29,10 @@ public class RabbitMQConsumer {
         notificationService.sendEmail(message);
     }
 
+    @RabbitListener(queues = "#{emailForgetPasswordQueue.name}")
+    public void consumeEmailResetPassword(NotificationMessage message) {
+        log.info("Received email reset password message: {}", message);
+        notificationService.sendEmail(message);
+    }
+
 }
