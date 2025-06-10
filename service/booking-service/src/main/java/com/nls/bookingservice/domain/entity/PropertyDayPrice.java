@@ -20,7 +20,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "property_day_prices", schema = "booking_service")
-@Check(constraints = "day_of_week BETWEEN 0 AND 6")
+@Check(constraints = "day_of_week BETWEEN 2 AND 8")
 public class PropertyDayPrice {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

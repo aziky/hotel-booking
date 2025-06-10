@@ -8,8 +8,8 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
-public record CreatePropertyReq(
-        UUID hostId,
+public record UpdatePropertyReq(
+        UUID id,
         String title,
         String description,
         String propertyType,
@@ -33,8 +33,6 @@ public record CreatePropertyReq(
         @JsonFormat(pattern = "HH:mm")
         @Schema(type = "string", pattern = "HH:mm", example = "14:00")
         LocalTime checkOutTime,
-        String imageUrl,
-        String createdBy,
         String updatedBy
 ) {
         // Nested record for day prices

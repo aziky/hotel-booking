@@ -64,9 +64,6 @@ public class Property {
     @Column(name = "longitude", nullable = false, precision = 11, scale = 8)
     private BigDecimal longitude;
 
-    @Column(name = "price_per_night", nullable = false, precision = 10, scale = 2)
-    private BigDecimal pricePerNight;
-
     @Column(name = "service_fee", precision = 10, scale = 2)
     @ColumnDefault("0")
     private BigDecimal serviceFee;
@@ -90,7 +87,8 @@ public class Property {
     private LocalTime checkOutTime;
 
     @Column(name = "status", length = 30)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PropertyStatus status;
 
     @Column(name = "created_at")
     @CreationTimestamp
