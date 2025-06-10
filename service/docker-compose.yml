@@ -17,7 +17,7 @@ services:
       retries: 5
       start_period: 30s
     networks:
-      - app-network
+      - be-network
 
   redis:
     image: "redis:7"
@@ -33,7 +33,7 @@ services:
       retries: 5
       start_period: 10s
     networks:
-      - app-network
+      - be-network
 
   rabbitmq:
     image: "rabbitmq:management"
@@ -52,7 +52,7 @@ services:
       retries: 5
       start_period: 30s
     networks:
-      - app-network
+      - be-network
 
   eureka-server:
     build:
@@ -78,7 +78,7 @@ services:
       retries: 3
       start_period: 60s
     networks:
-      - app-network
+      - be-network
 
 
   user-service:
@@ -101,7 +101,7 @@ services:
       eureka-server:
         condition: service_healthy
     networks:
-      - app-network
+      - be-network
 
   booking-service:
     build:
@@ -123,7 +123,7 @@ services:
       eureka-server:
         condition: service_healthy
     networks:
-      - app-network
+      - be-network
 
   payment-service:
     build:
@@ -145,7 +145,7 @@ services:
       eureka-server:
         condition: service_healthy
     networks:
-      - app-network
+      - be-network
 
   notification-service:
     build:
@@ -167,7 +167,7 @@ services:
       eureka-server:
         condition: service_healthy
     networks:
-      - app-network
+      - be-network
 
   recommendation-service:
     build:
@@ -189,7 +189,7 @@ services:
       eureka-server:
         condition: service_healthy
     networks:
-      - app-network
+      - be-network
 
   api-gateway:
     build:
@@ -221,12 +221,12 @@ services:
       recommendation-service:
         condition: service_started
     networks:
-      - app-network
+      - be-network
 
 volumes:
   postgres_data:
     driver: local
 
 networks:
-  app-network:
-    driver: bridge
+  be-network:
+    external: true
