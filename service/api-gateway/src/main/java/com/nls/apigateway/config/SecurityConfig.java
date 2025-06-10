@@ -21,30 +21,37 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JWTAuthenticationFilter jwtAuthFilter;
+    private static final String USER_PREFIX = "/user-service/api";
+    private static final String BOOKING_PREFIX = "/booking-service/api";
+    private static final String PAYMENT_PREFIX = "/payment-service/api";
 
     private static final String[] PUBLIC_ENDPOINT = {
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/webjars/**",
-            "/user-service/api/auth/**",
             "/",
             "/user-service/api/v3/api-docs",
             "/booking-service/api/v3/api-docs",
             "/payment-service/api/v3/api-docs",
             "/notification-service/api/v3/api-docs",
             "/recommendation-service/api/v3/api-docs",
-            "/payment-service/api/payment/IPN/vnpay",
-            "/user-service/api/user/confirm",
-            "/booking-service/api/property",
-            "/booking-service/api/property/{propertyId}"
+            USER_PREFIX + "/auth/**",
+            USER_PREFIX + "/user/confirm",
+            USER_PREFIX + "/user/forget-password",
+            USER_PREFIX + "/user/reset-password",
+            BOOKING_PREFIX + "/property",
+            BOOKING_PREFIX + "/property",
+            BOOKING_PREFIX + "/property/{propertyId}",
+            PAYMENT_PREFIX + "/payment/IPN/vnpay",
+            PAYMENT_PREFIX + "/payment/IPN/vnpay",
     };
 
     private static final String[] USER_ENDPOINT = {
-            "/user-service/api/user",
-            "/booking-service/api/booking",
-            "/booking-service/api/property/add",
-            "/booking-service/api/property/update",
+            USER_PREFIX + "/user",
+            BOOKING_PREFIX + "/booking",
+            BOOKING_PREFIX + "/property/add",
+            BOOKING_PREFIX + "/property/update",
 
     };
 
