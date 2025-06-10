@@ -1,3 +1,4 @@
+
 package com.nls.bookingservice.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -8,7 +9,7 @@ import lombok.With;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 @With
@@ -27,7 +28,7 @@ public record PropertyRes(
         String zipCode,
         BigDecimal latitude,
         BigDecimal longitude,
-        String pricePerNight,
+        List<PropertyDayPriceRes> dayPrices,
         BigDecimal serviceFee,
         Integer maxGuests,
         Integer bedrooms,

@@ -6,8 +6,10 @@ import com.nls.bookingservice.api.dto.response.PagedPropertyRes;
 import com.nls.bookingservice.api.dto.response.PropertyRes;
 import com.nls.bookingservice.application.IPropertyService;
 import com.nls.bookingservice.domain.entity.Property;
+import com.nls.bookingservice.domain.entity.PropertyDayPrice;
 import com.nls.bookingservice.domain.entity.PropertyImage;
 import com.nls.bookingservice.domain.entity.PropertyStatus;
+import com.nls.bookingservice.domain.repository.PropertyDayPriceRepository;
 import com.nls.bookingservice.domain.repository.PropertyImageRepository;
 import com.nls.bookingservice.domain.repository.PropertyRepository;
 import com.nls.bookingservice.shared.base.ApiResponse;
@@ -21,6 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,6 +35,7 @@ public class PropertyService implements IPropertyService {
 
     PropertyRepository propertyRepository;
     PropertyImageRepository propertyImageRepository;
+    PropertyDayPriceRepository propertyDayPriceRepository;
     PropertyMapper propertyMapper;
 
     @Override
@@ -58,6 +63,24 @@ public class PropertyService implements IPropertyService {
             Property property = propertyMapper.convertCreatePropertyReqToProperty(request);
             property = propertyRepository.save(property);
 
+            // Save day prices
+            if (request.dayPrices() != null && !request.dayPrices().isEmpty()) {
+                List<PropertyDayPrice> dayPrices = new ArrayList<>();
+                for (CreatePropertyReq.DayPriceReq dayPriceReq : request.dayPrices()) {
+                    PropertyDayPrice dayPrice = new PropertyDayPrice();
+                    dayPrice.setPropertyId(property.getId());
+                    dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
+                    dayPrice.setPrice(dayPriceReq.price());
+                    dayPrice.setCreatedBy(request.createdBy());
+                    dayPrice.setUpdatedBy(request.updatedBy());
+                    dayPrices.add(dayPrice);
+                }
+                propertyDayPriceRepository.saveAll(dayPrices);
+                property.setDayPrices(dayPrices);
+                log.info("Added {} day prices for property", dayPrices.size());
+            }
+
+            // Save image if provided
             if (request.imageUrl() != null && !request.imageUrl().isEmpty()) {
                 PropertyImage propertyImage = propertyMapper.createPropertyImageFromRequest(request, property.getId());
                 propertyImageRepository.save(propertyImage);
@@ -75,7 +98,7 @@ public class PropertyService implements IPropertyService {
     @Override
     public ApiResponse<PagedPropertyRes> getProperties(Pageable pageable) {
         try {
-            log.info("Start handle at get properties with page {} and size {}", 
+            log.info("Start handle at get properties with page {} and size {}",
                     pageable.getPageNumber(), pageable.getPageSize());
 
             Page<Property> propertyPage = propertyRepository.findAll(pageable);
@@ -99,6 +122,27 @@ public class PropertyService implements IPropertyService {
                     .orElseThrow(() -> new RuntimeException("Property not found with id " + request.id()));
 
             propertyMapper.updatePropertyFromReq(request, property);
+
+            // Update day prices
+            if (request.dayPrices() != null) {
+                // Delete existing day prices
+                propertyDayPriceRepository.deleteByPropertyId(property.getId());
+
+                // Save new day prices
+                List<PropertyDayPrice> dayPrices = new ArrayList<>();
+                for (UpdatePropertyReq.DayPriceReq dayPriceReq : request.dayPrices()) {
+                    PropertyDayPrice dayPrice = new PropertyDayPrice();
+                    dayPrice.setPropertyId(property.getId());
+                    dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
+                    dayPrice.setPrice(dayPriceReq.price());
+                    dayPrice.setUpdatedBy(request.updatedBy());
+                    dayPrices.add(dayPrice);
+                }
+                propertyDayPriceRepository.saveAll(dayPrices);
+                property.setDayPrices(dayPrices);
+                log.info("Updated {} day prices for property", dayPrices.size());
+            }
+
             property = propertyRepository.save(property);
 
             log.info("Update property successfully with id {}", property.getId());

@@ -27,7 +27,7 @@ public record PropertyDetailRes(
         String zipCode,
         BigDecimal latitude,
         BigDecimal longitude,
-        BigDecimal pricePerNight,
+        String pricePerNight,
         BigDecimal serviceFee,
         Integer maxGuests,
         Integer bedrooms,

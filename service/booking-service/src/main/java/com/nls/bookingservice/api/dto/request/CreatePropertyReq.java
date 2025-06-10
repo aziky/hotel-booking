@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 public record CreatePropertyReq(
@@ -21,7 +21,7 @@ public record CreatePropertyReq(
         String zipCode,
         BigDecimal latitude,
         BigDecimal longitude,
-        Map<String, String> pricePerNight,
+        List<DayPriceReq> dayPrices,
         BigDecimal serviceFee,
         Integer maxGuests,
         Integer bedrooms,
@@ -37,4 +37,11 @@ public record CreatePropertyReq(
         String createdBy,
         String updatedBy
 ) {
+        // Nested record for day prices
+        public record DayPriceReq(
+                @Schema(description = "Day of week (2=Monday, 3=Tuesday, 4=Wednesday, 5=Thursday, 6=Friday, 7=Saturday, 8=Sunday)", minimum = "2", maximum = "8")
+                Integer dayOfWeek,
+                @Schema(description = "Price for this day of week")
+                BigDecimal price
+        ) {}
 }

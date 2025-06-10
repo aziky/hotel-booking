@@ -6,12 +6,10 @@ import com.nls.bookingservice.api.dto.request.CreatePropertyReq;
 import com.nls.bookingservice.api.dto.request.UpdatePropertyReq;
 import com.nls.bookingservice.api.dto.response.*;
 import com.nls.bookingservice.domain.entity.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -65,8 +63,23 @@ public interface PropertyMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "status", expression = "java(com.nls.bookingservice.domain.entity.PropertyStatus.ACTIVE)")
-    @Mapping(target = "pricePerNight", source = "pricePerNight", qualifiedByName = "mapToJson")
     Property convertCreatePropertyReqToProperty(CreatePropertyReq request);
+
+    @AfterMapping
+    default void mapDayPricesFromCreateReq(CreatePropertyReq request, @MappingTarget Property property) {
+        if (request.dayPrices() != null && !request.dayPrices().isEmpty()) {
+            List<PropertyDayPrice> dayPrices = new ArrayList<>();
+            for (CreatePropertyReq.DayPriceReq dayPriceReq : request.dayPrices()) {
+                PropertyDayPrice dayPrice = new PropertyDayPrice();
+                dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
+                dayPrice.setPrice(dayPriceReq.price());
+                dayPrice.setCreatedBy(request.createdBy());
+                dayPrice.setUpdatedBy(request.updatedBy());
+                dayPrices.add(dayPrice);
+            }
+            property.setDayPrices(dayPrices);
+        }
+    }
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "hostId", ignore = true)
@@ -76,10 +89,31 @@ public interface PropertyMapper {
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "amenities", ignore = true)
     @Mapping(target = "categories", ignore = true)
-    @Mapping(target = "dayPrices", ignore = true)
+    @Mapping(target = "dayPrices", ignore = true) // Will handle manually in afterMapping
     @Mapping(target = "bookings", ignore = true)
-    @Mapping(target = "pricePerNight", source = "pricePerNight", qualifiedByName = "mapToJson")
     void updatePropertyFromReq(UpdatePropertyReq request, @MappingTarget Property property);
+
+    @AfterMapping
+    default void mapDayPricesFromUpdateReq(UpdatePropertyReq request, @MappingTarget Property property) {
+        if (request.dayPrices() != null) {
+            // Clear existing day prices
+            if (property.getDayPrices() != null) {
+                property.getDayPrices().clear();
+            } else {
+                property.setDayPrices(new ArrayList<>());
+            }
+
+            // Add new day prices
+            for (UpdatePropertyReq.DayPriceReq dayPriceReq : request.dayPrices()) {
+                PropertyDayPrice dayPrice = new PropertyDayPrice();
+                dayPrice.setPropertyId(property.getId());
+                dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
+                dayPrice.setPrice(dayPriceReq.price());
+                dayPrice.setUpdatedBy(request.updatedBy());
+                property.getDayPrices().add(dayPrice);
+            }
+        }
+    }
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "propertyId", source = "propertyId")
