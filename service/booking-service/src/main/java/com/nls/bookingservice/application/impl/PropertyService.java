@@ -3,6 +3,7 @@ package com.nls.bookingservice.application.impl;
 import com.nls.bookingservice.api.dto.request.CreatePropertyReq;
 import com.nls.bookingservice.api.dto.request.UpdatePropertyReq;
 import com.nls.bookingservice.api.dto.response.PagedPropertyRes;
+import com.nls.bookingservice.api.dto.response.PropertyDetailRes;
 import com.nls.bookingservice.api.dto.response.PropertyRes;
 import com.nls.bookingservice.application.IPropertyService;
 import com.nls.bookingservice.domain.entity.Property;
@@ -35,21 +36,29 @@ public class PropertyService implements IPropertyService {
 
     PropertyRepository propertyRepository;
     PropertyImageRepository propertyImageRepository;
-    PropertyDayPriceRepository propertyDayPriceRepository;
+    PropertyDayPriceRepository propertyDayPriceRepository; // Add this repository
     PropertyMapper propertyMapper;
 
     @Override
-    public ApiResponse<PropertyRes> getPropertyById(UUID propertyId) {
+    public ApiResponse<PropertyDetailRes> getPropertyDetail(UUID propertyId) {
         try {
-            log.info("Start handle at get property with id {}", propertyId);
+            log.info("Start handle at get property detail with id {}", propertyId);
             Property property = propertyRepository.findById(propertyId)
                     .orElseThrow(() -> new RuntimeException("Property not found with id " + propertyId));
-            return ApiResponse.ok(propertyMapper.convertToPropertyRes(property));
+
+            // Ensure day prices are loaded
+            if (property.getDayPrices() != null) {
+                property.getDayPrices().size(); // Trigger lazy loading
+            }
+
+            PropertyDetailRes detailRes = propertyMapper.convertToPropertyDetailRes(property);
+            log.info("Get property detail successfully with current day price: {}", detailRes.currentDayPrice());
+            return ApiResponse.ok(detailRes);
         } catch (RuntimeException e) {
-            log.warn("Get property failed cause by {}", e.getMessage());
+            log.warn("Get property detail failed cause by {}", e.getMessage());
             return ApiResponse.notFound(e.getMessage(), null);
         } catch (Exception e) {
-            log.error("Error at get property by id cause by {}", e.getMessage());
+            log.error("Error at get property detail by id cause by {}", e.getMessage());
             return ApiResponse.internalError();
         }
     }

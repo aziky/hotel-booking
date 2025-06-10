@@ -9,6 +9,9 @@ import com.nls.bookingservice.domain.entity.*;
 import org.mapstruct.*;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +33,23 @@ public interface PropertyMapper {
 
     PropertyRes convertToPropertyRes(Property property);
 
+    @Mapping(target = "currentDayPrice", expression = "java(getCurrentDayPrice(property))")
     PropertyDetailRes convertToPropertyDetailRes(Property property);
+
+    default BigDecimal getCurrentDayPrice(Property property) {
+        if (property.getDayPrices() == null || property.getDayPrices().isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        // Get current day of week (1=Monday, 7=Sunday)
+        int currentDayOfWeek = LocalDate.now().getDayOfWeek().getValue();
+
+        return property.getDayPrices().stream()
+                .filter(dp -> dp.getDayOfWeek() == currentDayOfWeek)
+                .map(PropertyDayPrice::getPrice)
+                .findFirst()
+                .orElse(BigDecimal.ZERO);
+    }
 
     PropertyImageRes convertToPropertyImageRes(PropertyImage propertyImage);
 
@@ -58,7 +77,7 @@ public interface PropertyMapper {
     @Mapping(target = "images", ignore = true)
     @Mapping(target = "amenities", ignore = true)
     @Mapping(target = "categories", ignore = true)
-    @Mapping(target = "dayPrices", ignore = true)
+    @Mapping(target = "dayPrices", ignore = true) // Will handle manually in afterMapping
     @Mapping(target = "bookings", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
