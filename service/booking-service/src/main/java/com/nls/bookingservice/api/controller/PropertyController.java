@@ -3,6 +3,7 @@ package com.nls.bookingservice.api.controller;
 import com.nls.bookingservice.api.dto.request.CreatePropertyReq;
 import com.nls.bookingservice.api.dto.request.UpdatePropertyReq;
 import com.nls.bookingservice.api.dto.response.PagedPropertyRes;
+import com.nls.bookingservice.api.dto.response.PropertyDetailRes;
 import com.nls.bookingservice.api.dto.response.PropertyRes;
 import com.nls.bookingservice.application.IPropertyService;
 import com.nls.bookingservice.shared.base.ApiResponse;
@@ -25,8 +26,8 @@ public class PropertyController {
     IPropertyService propertyService;
 
     @GetMapping("/{propertyId}")
-    public ResponseEntity<ApiResponse<PropertyRes>> getPropertyById(@PathVariable UUID propertyId) {
-        return ResponseEntity.ok(propertyService.getPropertyById(propertyId));
+    public ResponseEntity<ApiResponse<PropertyDetailRes>> getPropertyById(@PathVariable UUID propertyId) {
+        return ResponseEntity.ok(propertyService.getPropertyDetail(propertyId));
     }
 
     @GetMapping
@@ -47,11 +48,6 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.updateProperty(request));
     }
 
-    /**
-     * Delete a property by changing its status to INACTIVE
-     * @param propertyId the ID of the property to delete
-     * @return ResponseEntity containing the deleted property information
-     */
     @DeleteMapping("/{propertyId}")
     public ResponseEntity<ApiResponse<PropertyRes>> deleteProperty(@PathVariable UUID propertyId) {
         return ResponseEntity.ok(propertyService.deleteProperty(propertyId));

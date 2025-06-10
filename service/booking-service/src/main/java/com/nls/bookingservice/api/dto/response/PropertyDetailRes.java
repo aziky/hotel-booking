@@ -27,7 +27,8 @@ public record PropertyDetailRes(
         String zipCode,
         BigDecimal latitude,
         BigDecimal longitude,
-        String pricePerNight,
+        List<PropertyDayPriceRes> dayPrices,
+        BigDecimal currentDayPrice, // Price for today
         BigDecimal serviceFee,
         Integer maxGuests,
         Integer bedrooms,
@@ -38,16 +39,14 @@ public record PropertyDetailRes(
         @JsonFormat(pattern = "HH:mm:ss")
         LocalTime checkOutTime,
         PropertyStatus status,
+        List<PropertyImageRes> images,
+        List<PropertyAmenityRes> amenities,
+        List<PropertyCategoryRes> categories,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createdAt,
         String createdBy,
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime updatedAt,
-        String updatedBy,
-        List<PropertyImageRes> images,
-        List<PropertyAmenityRes> amenities,
-        List<PropertyCategoryRes> categories,
-        List<PropertyDayPriceRes> dayPrices,
-        Double rating
+        String updatedBy
 ) {
 }
