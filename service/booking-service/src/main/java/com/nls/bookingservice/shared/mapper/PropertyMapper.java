@@ -92,8 +92,6 @@ public interface PropertyMapper {
                 PropertyDayPrice dayPrice = new PropertyDayPrice();
                 dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
                 dayPrice.setPrice(dayPriceReq.price());
-                dayPrice.setCreatedBy(request.createdBy());
-                dayPrice.setUpdatedBy(request.updatedBy());
                 dayPrices.add(dayPrice);
             }
             property.setDayPrices(dayPrices);

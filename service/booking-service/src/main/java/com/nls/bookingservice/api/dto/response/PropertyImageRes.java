@@ -11,16 +11,6 @@ import java.util.UUID;
 @Builder
 public record PropertyImageRes(
         UUID id,
-        UUID propertyId,
-        String imageUrl,
-        String caption,
-        Boolean isPrimary,
-        Integer displayOrder,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime createdAt,
-        String createdBy,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime updatedAt,
-        String updatedBy
+        String imageUrl
 ) {
 }
