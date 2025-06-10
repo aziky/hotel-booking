@@ -80,8 +80,6 @@ public class PropertyService implements IPropertyService {
                     dayPrice.setPropertyId(property.getId());
                     dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
                     dayPrice.setPrice(dayPriceReq.price());
-                    dayPrice.setCreatedBy(request.createdBy());
-                    dayPrice.setUpdatedBy(request.updatedBy());
                     dayPrices.add(dayPrice);
                 }
                 propertyDayPriceRepository.saveAll(dayPrices);

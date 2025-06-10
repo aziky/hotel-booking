@@ -138,10 +138,6 @@ public interface PropertyMapper {
     @Mapping(target = "caption", ignore = true)
     @Mapping(target = "isPrimary", constant = "true")
     @Mapping(target = "displayOrder", constant = "0")
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", source = "request.createdBy")
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", source = "request.updatedBy")
     @Mapping(target = "property", ignore = true)
     PropertyImage createPropertyImageFromRequest(CreatePropertyReq request, UUID propertyId);
 }
