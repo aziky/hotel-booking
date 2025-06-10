@@ -198,7 +198,7 @@ services:
       context: .
       dockerfile: ./api-gateway/Dockerfile
     image: api-gateway-image
-    container_name: api-gateway
+    container_name: nls-be
     ports:
       - "8080:8080"
     environment:
