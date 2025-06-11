@@ -12,4 +12,5 @@ public interface IPaymentService {
 
     String handleVnpResponse(Map<String, String> params);
 
+    String handlePayOSResponse(Map<String, String> params);
 }

@@ -58,7 +58,7 @@ vnpay:
   response-host: http://localhost:8080
 
 web-url:
-  host: http://localhost:3000
+  host: http://localhost:8500
   payment-success: /payment/success
   payment-fail: /payment/fail
 
@@ -74,6 +74,12 @@ eureka:
 
 openapi:
   server-url: http://localhost:8080/payment-service/api
+
+payos:
+  client-id:
+  api-key:
+  checksum-key:
+  return-url: ${PAYOS_RETURN_URL}
 
 ---
 
@@ -93,7 +99,7 @@ spring:
         default_schema: ${SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA}
 
 vnpay:
-  response-host: ${VNPAY_RESPONSE_HOST}
+  response-host: ${SERVER_HOST}
 
 web-url:
   host: ${WEB_URL_HOST}
