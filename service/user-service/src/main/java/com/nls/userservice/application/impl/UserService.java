@@ -6,7 +6,7 @@ import com.nls.common.enumration.QueueName;
 import com.nls.common.enumration.Role;
 import com.nls.common.enumration.TypeEmail;
 import com.nls.userservice.api.dto.request.*;
-import com.nls.userservice.api.dto.response.UserRes;
+import com.nls.common.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
 import com.nls.userservice.domain.entity.User;
 import com.nls.userservice.domain.repository.UserRepository;
@@ -77,9 +77,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ApiResponse<UserRes> getUserProfileByUserId() {
+    public ApiResponse<UserRes> getUserProfileByUserId(UUID userId) {
         try {
-            UUID userId = SecurityUtil.getCurrentUserId();
             log.info("Start handle at get user profile with request {}", userId);
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User not found with userId " + userId));

@@ -5,12 +5,15 @@ import com.nls.bookingservice.api.dto.response.CreateBookingRes;
 import com.nls.bookingservice.application.IBookingService;
 import com.nls.bookingservice.domain.entity.Booking;
 import com.nls.bookingservice.domain.repository.BookingRepository;
-import com.nls.bookingservice.infrastructure.external.client.PaymentClient;
+import com.nls.bookingservice.infrastructure.external.client.PaymentServerClient;
+import com.nls.bookingservice.infrastructure.external.client.UserServiceClient;
 import com.nls.bookingservice.shared.mapper.BookingMapper;
 import com.nls.bookingservice.shared.utils.SecurityUtil;
 import com.nls.common.dto.request.CreatePaymentReq;
 import com.nls.common.dto.response.ApiResponse;
+import com.nls.common.dto.response.BookingDetailsRes;
 import com.nls.common.dto.response.CreatePaymentRes;
+import com.nls.common.dto.response.UserRes;
 import com.nls.common.enumration.BookingStatus;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -31,7 +35,8 @@ public class BookingService implements IBookingService {
     static long BOOKING_EXPIRE_DURATION_MINUTES = 30;
     BookingRepository bookingRepository;
     BookingMapper bookingMapper;
-    PaymentClient paymentClient;
+    PaymentServerClient paymentServerClient;
+    private final UserServiceClient userServiceClient;
 
     @Override
     @Transactional
@@ -49,7 +54,7 @@ public class BookingService implements IBookingService {
             CreatePaymentReq createPaymentReq = bookingMapper.convertCreateBookingToCreatePaymentReq(booking);
             createPaymentReq = createPaymentReq.withEmail(SecurityUtil.getCurrentEmail())
                     .withPaymentMethod(request.paymentMethod());
-            ApiResponse<CreatePaymentRes> paymentResponse = paymentClient.createPayment(createPaymentReq);
+            ApiResponse<CreatePaymentRes> paymentResponse = paymentServerClient.createPayment(createPaymentReq);
 
             if (paymentResponse.code() != HttpStatus.CREATED.value()) {
                 log.error("Create payment failed with response: {}", paymentResponse);
@@ -60,6 +65,25 @@ public class BookingService implements IBookingService {
             return ApiResponse.created(new CreateBookingRes(paymentResponse.data().paymentUrl()));
         } catch (Exception e) {
             log.error("Error at create booking cause by {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
+    @Override
+    public ApiResponse<BookingDetailsRes> getBookingDetails(UUID bookingId) {
+        try {
+            log.info("Start handle get booking details with ID {}", bookingId);
+            Booking booking = bookingRepository.findById(bookingId)
+                    .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+            ApiResponse<UserRes> userRes = userServiceClient.getUserById(booking.getUserId());
+            BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
+            bookingDetailsRes = bookingDetailsRes.withCustomerName(userRes.data().name())
+                    .withCustomerEmail(userRes.data().email());
+
+            return ApiResponse.ok(bookingDetailsRes);
+        } catch (Exception e) {
+            log.error("Error at get booking detail cause by: {}", e.getMessage());
             return ApiResponse.internalError();
         }
     }

@@ -4,13 +4,15 @@ import com.nls.common.dto.response.ApiResponse;
 import com.nls.userservice.api.dto.request.ForgetPasswordReq;
 import com.nls.userservice.api.dto.request.ResetPasswordReq;
 import com.nls.userservice.api.dto.request.UpdateUserReq;
-import com.nls.userservice.api.dto.response.UserRes;
+import com.nls.common.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("user")
@@ -20,9 +22,9 @@ public class UserController {
 
     IUserService userService;
 
-    @GetMapping()
-    public ResponseEntity<ApiResponse<UserRes>> getUserProfile() {
-        return ResponseEntity.ok(userService.getUserProfileByUserId());
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse<UserRes>> getUserProfile(@PathVariable UUID userId) {
+        return ResponseEntity.ok(userService.getUserProfileByUserId(userId));
     }
 
     @PutMapping("/update")

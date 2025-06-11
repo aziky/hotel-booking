@@ -3,6 +3,7 @@ package com.nls.paymentservice.api.controller;
 import com.nls.common.dto.request.CreatePaymentReq;
 import com.nls.common.dto.response.ApiResponse;
 import com.nls.common.dto.response.CreatePaymentRes;
+import com.nls.paymentservice.api.dto.response.PayOSRes;
 import com.nls.paymentservice.application.IPaymentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class PaymentController {
     }
 
     @GetMapping("/IPN/payOS")
-    public String handleVnpayOS(@RequestParam Map<String, String> params) {
-        return "redirect:" + paymentService.handleVnpResponse(params);
+    public String handleVnpayOS(@ModelAttribute PayOSRes payOSRes) {
+        return "redirect:" + paymentService.handlePayOSResponse(payOSRes);
     }
 }

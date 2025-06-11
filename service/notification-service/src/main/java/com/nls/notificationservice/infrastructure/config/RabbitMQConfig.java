@@ -20,8 +20,8 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Queue emailConfirmPaymentQueue() {
-        return new Queue(QueueName.EMAIL_CONFIRM_PAYMENT.getQueueName(), true);
+    public Queue emailPaymentSuccessQueue() {
+        return new Queue(QueueName.EMAIL_PAYMENT_SUCCESS.getQueueName(), true);
     }
 
     @Bean
@@ -43,9 +43,9 @@ public class RabbitMQConfig {
     @Bean
     public Binding emailConfirmPaymentBinding() {
         return BindingBuilder
-                .bind(emailConfirmPaymentQueue())
+                .bind(emailPaymentSuccessQueue())
                 .to(emailExchange())
-                .with(QueueName.EMAIL_CONFIRM_PAYMENT.getRoutingKey());
+                .with(QueueName.EMAIL_PAYMENT_SUCCESS.getRoutingKey());
     }
 
     @Bean

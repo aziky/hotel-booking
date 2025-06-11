@@ -4,13 +4,13 @@ import com.nls.bookingservice.api.dto.request.CreateBookingReq;
 import com.nls.bookingservice.api.dto.response.CreateBookingRes;
 import com.nls.bookingservice.application.IBookingService;
 import com.nls.common.dto.response.ApiResponse;
+import com.nls.common.dto.response.BookingDetailsRes;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("booking")
@@ -25,5 +25,9 @@ public class BookingController {
         return bookingService.createBooking(request);
     }
 
+    @GetMapping("/{bookingId}")
+    public ApiResponse<BookingDetailsRes> getBookingDetails(@PathVariable("bookingId") UUID bookingId) {
+        return bookingService.getBookingDetails(bookingId);
+    }
 
 }

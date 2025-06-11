@@ -5,7 +5,7 @@ import com.nls.bookingservice.api.dto.request.UpdatePropertyReq;
 import com.nls.bookingservice.api.dto.response.PagedPropertyRes;
 import com.nls.bookingservice.api.dto.response.PropertyDetailRes;
 import com.nls.bookingservice.api.dto.response.PropertyRes;
-import com.nls.bookingservice.shared.base.ApiResponse;
+import com.nls.common.dto.response.ApiResponse;
 import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
