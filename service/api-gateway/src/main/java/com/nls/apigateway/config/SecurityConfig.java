@@ -44,7 +44,7 @@ public class SecurityConfig {
             BOOKING_PREFIX + "/property",
             BOOKING_PREFIX + "/property/{propertyId}",
             PAYMENT_PREFIX + "/payment/IPN/vnpay",
-            PAYMENT_PREFIX + "/payment/IPN/vnpay",
+            PAYMENT_PREFIX + "/payment/IPN/payos",
     };
 
     private static final String[] USER_ENDPOINT = {

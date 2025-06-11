@@ -30,4 +30,9 @@ public class PaymentController {
     public String handleVnpayIPN(@RequestParam Map<String, String> params) {
         return "redirect:" + paymentService.handleVnpResponse(params);
     }
+
+    @GetMapping("/IPN/payOS")
+    public String handleVnpayOS(@RequestParam Map<String, String> params) {
+        return "redirect:" + paymentService.handleVnpResponse(params);
+    }
 }
