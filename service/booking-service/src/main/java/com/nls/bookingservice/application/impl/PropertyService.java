@@ -80,8 +80,6 @@ public class PropertyService implements IPropertyService {
                     dayPrice.setPropertyId(property.getId());
                     dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
                     dayPrice.setPrice(dayPriceReq.price());
-                    dayPrice.setCreatedBy(request.createdBy());
-                    dayPrice.setUpdatedBy(request.updatedBy());
                     dayPrices.add(dayPrice);
                 }
                 propertyDayPriceRepository.saveAll(dayPrices);
@@ -111,6 +109,13 @@ public class PropertyService implements IPropertyService {
                     pageable.getPageNumber(), pageable.getPageSize());
 
             Page<Property> propertyPage = propertyRepository.findAll(pageable);
+
+            // Trigger lazy loading of day prices for current day price calculation
+            propertyPage.getContent().forEach(property -> {
+                if (property.getDayPrices() != null) {
+                    property.getDayPrices().size(); // Trigger lazy loading
+                }
+            });
             PagedPropertyRes pagedPropertyRes = propertyMapper.convertToPagedPropertyRes(propertyPage);
 
             log.info("Get properties successfully with total elements {}", propertyPage.getTotalElements());

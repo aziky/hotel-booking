@@ -92,8 +92,6 @@ public interface PropertyMapper {
                 PropertyDayPrice dayPrice = new PropertyDayPrice();
                 dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
                 dayPrice.setPrice(dayPriceReq.price());
-                dayPrice.setCreatedBy(request.createdBy());
-                dayPrice.setUpdatedBy(request.updatedBy());
                 dayPrices.add(dayPrice);
             }
             property.setDayPrices(dayPrices);
@@ -140,10 +138,6 @@ public interface PropertyMapper {
     @Mapping(target = "caption", ignore = true)
     @Mapping(target = "isPrimary", constant = "true")
     @Mapping(target = "displayOrder", constant = "0")
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "createdBy", source = "request.createdBy")
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "updatedBy", source = "request.updatedBy")
     @Mapping(target = "property", ignore = true)
     PropertyImage createPropertyImageFromRequest(CreatePropertyReq request, UUID propertyId);
 }

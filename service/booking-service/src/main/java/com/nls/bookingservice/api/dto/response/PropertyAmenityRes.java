@@ -14,12 +14,6 @@ public record PropertyAmenityRes(
         UUID amenityId,
         String name,
         String description,
-        String icon,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime createdAt,
-        String createdBy,
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime updatedAt,
-        String updatedBy
+        String icon
 ) {
 }

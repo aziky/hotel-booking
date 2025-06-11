@@ -33,9 +33,7 @@ public record CreatePropertyReq(
         @JsonFormat(pattern = "HH:mm")
         @Schema(type = "string", pattern = "HH:mm", example = "14:00")
         LocalTime checkOutTime,
-        String imageUrl,
-        String createdBy,
-        String updatedBy
+        String imageUrl
 ) {
         // Nested record for day prices
         public record DayPriceReq(
