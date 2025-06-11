@@ -40,6 +40,9 @@ public class Payment {
     @Column(name = "payment_status", length = 50)
     private String paymentStatus;
 
+    @Column(name = "order_code")
+    private Long orderCode;
+
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -55,5 +58,8 @@ public class Payment {
     @Column(name = "updated_by", length = 50)
     @LastModifiedBy
     private String updatedBy;
+
+    @OneToOne(mappedBy = "payment", cascade = CascadeType.ALL)
+    private PaymentLog paymentLog;
 
 }

@@ -6,7 +6,7 @@ import com.nls.bookingservice.api.dto.response.PagedPropertyRes;
 import com.nls.bookingservice.api.dto.response.PropertyDetailRes;
 import com.nls.bookingservice.api.dto.response.PropertyRes;
 import com.nls.bookingservice.application.IPropertyService;
-import com.nls.bookingservice.shared.base.ApiResponse;
+import com.nls.common.dto.response.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

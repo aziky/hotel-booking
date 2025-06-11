@@ -2,7 +2,7 @@ package com.nls.userservice.shared.mapper;
 
 import com.nls.userservice.api.dto.request.CreateUserReq;
 import com.nls.userservice.api.dto.request.UpdateUserReq;
-import com.nls.userservice.api.dto.response.UserRes;
+import com.nls.common.dto.response.UserRes;
 import com.nls.userservice.domain.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

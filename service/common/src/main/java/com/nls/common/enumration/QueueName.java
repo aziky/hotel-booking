@@ -8,7 +8,7 @@ public enum QueueName {
             "email.confirm.otp"
     ),
 
-    EMAIL_CONFIRM_PAYMENT(
+    EMAIL_PAYMENT_SUCCESS(
             "email.confirm.payment.queue",
             "email.exchange",
             "email.confirm.payment"
