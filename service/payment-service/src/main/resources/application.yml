@@ -71,7 +71,6 @@ eureka:
   instance:
     prefer-ip-address: true
 
-
 openapi:
   server-url: http://localhost:8080/payment-service/api
 
@@ -79,7 +78,15 @@ payos:
   client-id: 99a5c4d5-446d-409b-86df-096dc72618d9
   api-key: c8e62c78-8d37-441e-96b5-d02905b17fd5
   checksum-key: b1defc6c87193af21a449e804bce9725753163b16d24937ccedc3a4bb9dddbe5
-  return-url: /payment-service/api/payment/IPN/payOS
+  return-url: /payment-service/api/payment/IPN/payos
+
+
+host:
+  server: http://localhost:8080
+
+
+
+
 
 ---
 
@@ -97,6 +104,8 @@ spring:
     properties:
       hibernate:
         default_schema: ${SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA}
+
+
 
 vnpay:
   response-host: ${SERVER_HOST}
@@ -124,3 +133,6 @@ payos:
 
 openapi:
   server-url: ${OPENAPI_SERVER_URL}
+
+host:
+  server: ${SERVER_HOST}

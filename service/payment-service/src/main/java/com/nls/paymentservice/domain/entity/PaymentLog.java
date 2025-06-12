@@ -1,22 +1,31 @@
 package com.nls.paymentservice.domain.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.Instant;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
-@Getter
-@Setter
+@Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "payment_logs", schema = "payment_service")
 public class PaymentLog {
     @Id
-    @Column(name = "order_code", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
+
+    @NotNull
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "order_code", nullable = false, referencedColumnName = "order_code")
+    private Payment orderCode;
 
     @Size(max = 255)
     @Column(name = "payment_link_id")
@@ -46,10 +55,5 @@ public class PaymentLog {
     @Size(max = 50)
     @Column(name = "updated_by", length = 50)
     private String updatedBy;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_code")
-    @MapsId
-    private Payment payment;
 
 }
