@@ -32,7 +32,7 @@ public class PaymentController {
         return "redirect:" + paymentService.handleVnpResponse(params);
     }
 
-    @GetMapping("/IPN/payOS")
+    @GetMapping("/IPN/payos")
     public String handleVnpayOS(@ModelAttribute PayOSRes payOSRes) {
         return "redirect:" + paymentService.handlePayOSResponse(payOSRes);
     }

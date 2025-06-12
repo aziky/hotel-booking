@@ -2,10 +2,10 @@ package com.nls.paymentservice.application.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.f4b6a3.tsid.TsidCreator;
 import com.nls.common.dto.request.CreatePaymentReq;
 import com.nls.common.dto.request.NotificationMessage;
 import com.nls.common.dto.response.ApiResponse;
+import com.nls.common.dto.response.BookingDetailsRes;
 import com.nls.common.dto.response.CreatePaymentRes;
 import com.nls.common.enumration.PaymentMethod;
 import com.nls.common.enumration.PaymentStatus;
@@ -20,9 +20,9 @@ import com.nls.paymentservice.domain.repository.PaymentLogRepository;
 import com.nls.paymentservice.domain.repository.PaymentRepository;
 import com.nls.paymentservice.infrastructure.config.AuditContext;
 import com.nls.paymentservice.infrastructure.external.client.BookingServiceClient;
-import com.nls.common.dto.response.BookingDetailsRes;
 import com.nls.paymentservice.infrastructure.external.dto.response.VnpayValidationResult;
 import com.nls.paymentservice.infrastructure.messaging.RabbitProducer;
+import com.nls.paymentservice.infrastructure.properties.HostProperties;
 import com.nls.paymentservice.infrastructure.properties.PayOSProperties;
 import com.nls.paymentservice.infrastructure.properties.WebUrlProperties;
 import com.nls.paymentservice.shared.mapper.PaymentMapper;
@@ -37,10 +37,7 @@ import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.PaymentData;
 
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -59,6 +56,7 @@ public class PaymentService implements IPaymentService {
     BookingServiceClient bookingServiceClient;
     ObjectMapper objectMapper;
     RabbitProducer rabbitProducer;
+    HostProperties hostProperties;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -66,7 +64,7 @@ public class PaymentService implements IPaymentService {
         try {
             log.info("Start create payment with request {}", request);
             auditContext.setTemporaryUser(request.email());
-            long orderCode = TsidCreator.getTsid().toLong();
+            long orderCode = generateSafeOrderCode();
             Payment payment = Payment.builder()
                     .bookingId(request.bookingId())
                     .amount(request.totalAmount())
@@ -87,10 +85,10 @@ public class PaymentService implements IPaymentService {
                 case PAYOS: {
                     PaymentData paymentData = PaymentData.builder()
                             .orderCode(orderCode)
-                            .description("Thanh toan khach san")
+                            .description("nls-hotel")
                             .amount(request.totalAmount().setScale(0, RoundingMode.FLOOR).intValue())
-                            .returnUrl(webUrlProperties.host() + payOSProperties.returnUrl())
-                            .cancelUrl(webUrlProperties.host() + payOSProperties.returnUrl())
+                            .returnUrl(hostProperties.server() + payOSProperties.returnUrl())
+                            .cancelUrl(hostProperties.server() + payOSProperties.returnUrl())
                             .build();
                     CheckoutResponseData payOSResponse = payOS.createPaymentLink(paymentData);
                     urlPayment = payOSResponse.getCheckoutUrl();
@@ -147,12 +145,21 @@ public class PaymentService implements IPaymentService {
             if (!"00".equals(payOSRes.code())) throw new RuntimeException("Invalid params");
 
             PaymentLog paymentLog = paymentMapper.convertPayOSResToPaymentLog(payOSRes);
+            paymentLog.setOrderCode(payment);
             paymentLogRepository.save(paymentLog);
             auditContext.setTemporaryUser(payment.getCreatedBy());
 
             if (payOSRes.cancel() || "CANCELLED".equalsIgnoreCase(payOSRes.status())) {
                 payment.setPaymentStatus(PaymentStatus.FAILED.name());
                 paymentRepository.save(payment);
+
+                return webUrlProperties.host() + webUrlProperties.paymentFail();
+            }
+
+            if ("PAID".equalsIgnoreCase(payOSRes.status())) {
+                payment.setPaymentStatus(PaymentStatus.PAID.name());
+                paymentRepository.save(payment);
+
 
                 log.info("Start retrieve booking details with booking id {}", payment.getBookingId());
                 BookingDetailsRes bookingDetailsRes = bookingServiceClient.getBookingById(payment.getBookingId());
@@ -177,18 +184,19 @@ public class PaymentService implements IPaymentService {
                         notificationMessage
                 );
 
-                return webUrlProperties.host() + webUrlProperties.paymentFail();
-            }
-
-            if ("PAID".equalsIgnoreCase(payOSRes.status())) {
-                payment.setPaymentStatus(PaymentStatus.PAID.name());
-                paymentRepository.save(payment);
                 return webUrlProperties.host() + webUrlProperties.paymentSuccess();
             }
         } catch (Exception e) {
             log.error("Error at handle payos response cause by: {}", e.getMessage());
         }
         return webUrlProperties.host() + webUrlProperties.paymentFail();
+    }
+
+
+    private long generateSafeOrderCode() {
+        int base = (int) (System.currentTimeMillis() / 1000) % 1_000_000_000;
+        int random = new Random().nextInt(900) + 100;
+        return Long.parseLong(base + "" + random);
     }
 
 }

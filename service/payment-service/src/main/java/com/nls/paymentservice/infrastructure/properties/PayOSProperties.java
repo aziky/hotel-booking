@@ -7,6 +7,7 @@ public record PayOSProperties (
         String clientId,
         String apiKey,
         String checksumKey,
-        String returnUrl
+        String returnUrl,
+        String cancelUrl
 ) {
 }
