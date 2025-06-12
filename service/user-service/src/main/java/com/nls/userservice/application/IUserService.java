@@ -20,4 +20,7 @@ public interface IUserService {
 
     ApiResponse<UserRes> resetPassword(ResetPasswordReq request);
 
+    ApiResponse<UserRes> changeUserRole(ChangeRoleReq request);
+
+
 }
