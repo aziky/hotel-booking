@@ -60,7 +60,7 @@ public class PaymentService implements IPaymentService {
     ObjectMapper objectMapper;
     RabbitProducer rabbitProducer;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ApiResponse<CreatePaymentRes> createPayment(CreatePaymentReq request) {
         try {
