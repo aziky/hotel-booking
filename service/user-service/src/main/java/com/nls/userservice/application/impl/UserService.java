@@ -65,7 +65,7 @@ public class UserService implements IUserService {
                     String.valueOf(user.getId()),
                     user.getEmail(),
                     user.getRole()));
-
+            log.info("Login successfully with {}", userRes);
             return ApiResponse.ok(userRes);
         } catch (EntityNotFoundException e) {
             log.warn("Login failed cause by  {}", e.getMessage());
