@@ -78,7 +78,8 @@ public class SecurityConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowCredentials(true);
-        corsConfig.addAllowedOrigin("*");
+        corsConfig.addAllowedOrigin("http://34.124.245.123:8050");
+        corsConfig.addAllowedOrigin("http://localhost:8050");
         corsConfig.addAllowedHeader("*");
         corsConfig.addAllowedMethod("*");
 
