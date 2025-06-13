@@ -4,6 +4,7 @@ import com.nls.apigateway.filter.JWTAuthenticationFilter;
 import com.nls.common.enumration.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -44,7 +45,7 @@ public class SecurityConfig {
             BOOKING_PREFIX + "/property",
             BOOKING_PREFIX + "/property/{propertyId}",
             PAYMENT_PREFIX + "/payment/IPN/vnpay",
-            PAYMENT_PREFIX + "/payment/IPN/vnpay",
+            PAYMENT_PREFIX + "/payment/IPN/payos",
     };
 
     private static final String[] USER_ENDPOINT = {
@@ -77,7 +78,8 @@ public class SecurityConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowCredentials(true);
-        corsConfig.addAllowedOrigin("*");
+        corsConfig.addAllowedOrigin("http://34.124.245.123:8050");
+        corsConfig.addAllowedOrigin("http://localhost:8050");
         corsConfig.addAllowedHeader("*");
         corsConfig.addAllowedMethod("*");
 

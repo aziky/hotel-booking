@@ -2,13 +2,15 @@ package com.nls.userservice.application;
 
 import com.nls.common.dto.response.ApiResponse;
 import com.nls.userservice.api.dto.request.*;
-import com.nls.userservice.api.dto.response.UserRes;
+import com.nls.common.dto.response.UserRes;
+
+import java.util.UUID;
 
 public interface IUserService {
 
     ApiResponse<UserRes> login(LoginReq loginReq);
 
-    ApiResponse<UserRes> getUserProfileByUserId();
+    ApiResponse<UserRes> getUserProfileByUserId(UUID userId);
 
     ApiResponse<Void> createUser(CreateUserReq request);
 

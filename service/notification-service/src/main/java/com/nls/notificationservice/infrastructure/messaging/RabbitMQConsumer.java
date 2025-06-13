@@ -23,9 +23,9 @@ public class RabbitMQConsumer {
         notificationService.sendEmail(message);
     }
 
-    @RabbitListener(queues = "#{emailConfirmPaymentQueue.name}")
-    public void consumeEmailConfirmPayment(NotificationMessage message) {
-        log.info("Received email confirmation payment message: {}", message);
+    @RabbitListener(queues = "#{emailPaymentSuccessQueue.name}")
+    public void consumeEmailPaymentSuccess(NotificationMessage message) {
+        log.info("Received email payment success message: {}", message);
         notificationService.sendEmail(message);
     }
 

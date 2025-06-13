@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @FeignClient("payment-service")
-public interface PaymentClient {
+public interface PaymentServerClient {
 
     String BASE = "/api/payment";
 

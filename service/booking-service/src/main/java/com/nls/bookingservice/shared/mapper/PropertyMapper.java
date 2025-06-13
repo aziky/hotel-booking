@@ -34,6 +34,7 @@ public interface PropertyMapper {
     PropertyRes convertToPropertyRes(Property property);
 
     @Mapping(target = "currentDayPrice", expression = "java(getCurrentDayPrice(property))")
+    @Mapping(target = "imageUrl", expression = "java(getFirstImageUrl(property))")
     PropertyDetailRes convertToPropertyDetailRes(Property property);
 
     default BigDecimal getCurrentDayPrice(Property property) {
@@ -49,6 +50,13 @@ public interface PropertyMapper {
                 .map(PropertyDayPrice::getPrice)
                 .findFirst()
                 .orElse(BigDecimal.ZERO);
+    }
+
+    default String getFirstImageUrl(Property property) {
+        if (property.getImages() == null || property.getImages().isEmpty()) {
+            return null;
+        }
+        return property.getImages().get(0).getImageUrl();
     }
 
     PropertyImageRes convertToPropertyImageRes(PropertyImage propertyImage);

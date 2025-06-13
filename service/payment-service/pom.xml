@@ -85,6 +85,21 @@
 			<artifactId>spring-dotenv</artifactId>
 			<version>4.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>vn.payos</groupId>
+			<artifactId>payos-java</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.f4b6a3</groupId>
+			<artifactId>tsid-creator</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
