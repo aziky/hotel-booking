@@ -53,6 +53,7 @@ public class SecurityConfig {
             BOOKING_PREFIX + "/booking",
             BOOKING_PREFIX + "/property/add",
             BOOKING_PREFIX + "/property/update",
+            USER_PREFIX + "/user/change-role",
 
     };
 
