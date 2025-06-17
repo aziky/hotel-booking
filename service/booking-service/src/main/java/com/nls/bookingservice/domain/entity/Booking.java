@@ -42,7 +42,7 @@ public class Booking {
     @Column(name = "guests_count")
     private Integer guestsCount;
 
-    @Column(name = "total_night", precision = 10, scale = 2)
+    @Column(name = "total_night")
     private Integer totalNight;
 
     @Column(name = "price_per_night", precision = 10, scale = 2)

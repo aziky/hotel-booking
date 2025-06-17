@@ -15,6 +15,8 @@ public interface BookingMapper {
     @Mapping(target = "bookingId", source = "id")
     CreatePaymentReq convertCreateBookingToCreatePaymentReq(Booking request);
 
+    @Mapping(target = "bookingId", source = "id")
+    @Mapping(target = "roomType", source = "property.roomType")
     BookingDetailsRes convertBookingToBookingDetailsRes(Booking request);
 
 }

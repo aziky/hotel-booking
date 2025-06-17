@@ -1,4 +1,4 @@
-package com.nls.bookingservice.infrastructure.external.client;
+package com.nls.paymentservice.infrastructure.external.client;
 
 import com.nls.common.dto.response.ApiResponse;
 import com.nls.common.dto.response.UserRes;
@@ -13,6 +13,6 @@ public interface UserServiceClient {
 
     String BASE_USER = "/api/user";
 
-    @GetMapping(BASE_USER + "/review/property/{propertyId}/rating")
-    ApiResponse<Double> getAverageRatingByPropertyId(@PathVariable UUID propertyId);
+    @GetMapping(BASE_USER + "/{userId}")
+    ApiResponse<UserRes> getUserById(@PathVariable UUID userId);
 }
