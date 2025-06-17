@@ -252,5 +252,50 @@ public class UserService implements IUserService {
             return ApiResponse.internalError();
         }
     }
+    @Transactional
+    @Override
+    public ApiResponse<UserRes> changeUserRole(ChangeRoleReq request) {
+        try {
+            UUID userId = SecurityUtil.getCurrentUserId();
+            log.info("Start change user role with request: {}", request);
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+            // Validate current role
+            if (!Role.USER.name().equals(user.getRole())) {
+                log.warn("Role change denied: User {} already has role {}", userId, user.getRole());
+                return ApiResponse.badRequest("Only users with USER role can change to HOST role");
+            }
+
+            // Validate target role
+            if (!Role.HOST.name().equals(request.targetRole())) {
+                log.warn("Role change denied: Invalid target role {}", request.targetRole());
+                return ApiResponse.badRequest("Only role change to HOST is allowed");
+            }
+
+            // Update user role
+            user.setRole(Role.HOST.name());
+            userRepository.save(user);
+
+            // Generate new token with updated role
+            UserRes userRes = userMapper.convertToUserRes(user);
+            userRes = userRes.withToken(jwtUtil.generateToken(
+                    String.valueOf(user.getId()),
+                    user.getEmail(),
+                    user.getRole()
+            ));
+
+            log.info("User role changed successfully from USER to HOST for user: {}", userId);
+            return ApiResponse.ok(userRes, "Role changed successfully to HOST");
+
+        } catch (EntityNotFoundException e) {
+            log.warn("Role change failed: {}", e.getMessage());
+            return ApiResponse.notFound(e.getMessage(), null);
+        } catch (Exception e) {
+            log.error("Error at change user role: {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
 
 }
