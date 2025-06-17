@@ -11,9 +11,11 @@ import java.util.UUID;
 @FeignClient("user-service")
 public interface UserServiceClient {
 
+    String BASE_USER = "/api/user";
+
     @GetMapping("/review/property/{propertyId}/rating")
     ApiResponse<Double> getAverageRatingByPropertyId(@PathVariable UUID propertyId);
 
-    @GetMapping("/{userId}")
+    @GetMapping(BASE_USER + "/{userId}")
     ApiResponse<UserRes> getUserById(@PathVariable UUID userId);
 }
