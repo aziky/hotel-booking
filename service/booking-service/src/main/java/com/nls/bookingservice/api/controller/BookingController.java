@@ -27,7 +27,7 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public ApiResponse<BookingDetailsRes> getBookingDetails(@PathVariable("bookingId") UUID bookingId) {
-        return bookingService.getBookingDetails(bookingId);
+        return bookingService.updateBookingById(bookingId);
     }
 
 }

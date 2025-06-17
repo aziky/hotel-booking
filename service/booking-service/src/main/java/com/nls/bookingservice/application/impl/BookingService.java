@@ -41,50 +41,41 @@ public class BookingService implements IBookingService {
     @Override
     @Transactional
     public ApiResponse<CreateBookingRes> createBooking(CreateBookingReq request) {
-        try {
-            log.info("Start handle create booking with request {}", request);
-            Booking booking = bookingMapper.convertCreateBookingToBooking(request);
-            booking.setUserId(SecurityUtil.getCurrentUserId());
-            booking.setExpiresAt(LocalDateTime.now().plusMinutes(BOOKING_EXPIRE_DURATION_MINUTES));
-            booking.setBookingStatus(BookingStatus.PENDING.name());
-            bookingRepository.save(booking);
+        log.info("Start handle create booking with request {}", request);
+        Booking booking = bookingMapper.convertCreateBookingToBooking(request);
+        booking.setUserId(SecurityUtil.getCurrentUserId());
+        booking.setExpiresAt(LocalDateTime.now().plusMinutes(BOOKING_EXPIRE_DURATION_MINUTES));
+        booking.setBookingStatus(BookingStatus.PENDING.name());
+        bookingRepository.save(booking);
 
-            log.info("Save booking successfully with ID: {}", booking.getId());
+        log.info("Save booking successfully with ID: {}", booking.getId());
 
-            CreatePaymentReq createPaymentReq = bookingMapper.convertCreateBookingToCreatePaymentReq(booking);
-            createPaymentReq = createPaymentReq.withEmail(SecurityUtil.getCurrentEmail())
-                    .withPaymentMethod(request.paymentMethod());
-            ApiResponse<CreatePaymentRes> paymentResponse = paymentServerClient.createPayment(createPaymentReq);
+        CreatePaymentReq createPaymentReq = bookingMapper.convertCreateBookingToCreatePaymentReq(booking);
+        createPaymentReq = createPaymentReq.withEmail(SecurityUtil.getCurrentEmail())
+                .withPaymentMethod(request.paymentMethod());
+        ApiResponse<CreatePaymentRes> paymentResponse = paymentServerClient.createPayment(createPaymentReq);
 
-            if (paymentResponse.code() != HttpStatus.CREATED.value()) {
-                log.error("Create payment failed with response: {}", paymentResponse);
-                throw new RuntimeException("Failed to create payment");
-            }
-
-            log.info("Payment created successfully for booking: {}", booking.getId());
-            return ApiResponse.created(new CreateBookingRes(paymentResponse.data().paymentUrl()));
-        } catch (Exception e) {
-            log.error("Error at create booking cause by {}", e.getMessage());
-            return ApiResponse.internalError();
+        if (paymentResponse.code() != HttpStatus.CREATED.value()) {
+            log.error("Create payment failed with response: {}", paymentResponse);
+            throw new RuntimeException("Failed to create payment");
         }
+
+        log.info("Payment created successfully for booking: {}", booking.getId());
+        return ApiResponse.created(new CreateBookingRes(paymentResponse.data().paymentUrl()));
     }
 
+    @Transactional
     @Override
-    public ApiResponse<BookingDetailsRes> getBookingDetails(UUID bookingId) {
-        try {
-            log.info("Start handle get booking details with ID {}", bookingId);
-            Booking booking = bookingRepository.findById(bookingId)
-                    .orElseThrow(() -> new RuntimeException("Booking not found"));
+    public ApiResponse<BookingDetailsRes> updateBookingById(UUID bookingId) {
+        log.info("Start handle get booking details with ID {}", bookingId);
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-            ApiResponse<UserRes> userRes = userServiceClient.getUserById(booking.getUserId());
-            BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
-            bookingDetailsRes = bookingDetailsRes.withCustomerName(userRes.data().name())
-                    .withCustomerEmail(userRes.data().email());
+        BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
 
-            return ApiResponse.ok(bookingDetailsRes);
-        } catch (Exception e) {
-            log.error("Error at get booking detail cause by: {}", e.getMessage());
-            return ApiResponse.internalError();
-        }
+        booking.setBookingStatus(BookingStatus.PAID.name());
+        bookingRepository.save(booking);
+
+        return ApiResponse.ok(bookingDetailsRes);
     }
 }

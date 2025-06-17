@@ -7,6 +7,7 @@ import com.nls.common.dto.request.NotificationMessage;
 import com.nls.common.dto.response.ApiResponse;
 import com.nls.common.dto.response.BookingDetailsRes;
 import com.nls.common.dto.response.CreatePaymentRes;
+import com.nls.common.dto.response.UserRes;
 import com.nls.common.enumration.PaymentMethod;
 import com.nls.common.enumration.PaymentStatus;
 import com.nls.common.enumration.QueueName;
@@ -20,12 +21,14 @@ import com.nls.paymentservice.domain.repository.PaymentLogRepository;
 import com.nls.paymentservice.domain.repository.PaymentRepository;
 import com.nls.paymentservice.infrastructure.config.AuditContext;
 import com.nls.paymentservice.infrastructure.external.client.BookingServiceClient;
+import com.nls.paymentservice.infrastructure.external.client.UserServiceClient;
 import com.nls.paymentservice.infrastructure.external.dto.response.VnpayValidationResult;
 import com.nls.paymentservice.infrastructure.messaging.RabbitProducer;
 import com.nls.paymentservice.infrastructure.properties.HostProperties;
 import com.nls.paymentservice.infrastructure.properties.PayOSProperties;
 import com.nls.paymentservice.infrastructure.properties.WebUrlProperties;
 import com.nls.paymentservice.shared.mapper.PaymentMapper;
+import com.nls.paymentservice.shared.utils.SecurityUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -57,6 +60,7 @@ public class PaymentService implements IPaymentService {
     ObjectMapper objectMapper;
     RabbitProducer rabbitProducer;
     HostProperties hostProperties;
+    UserServiceClient userServiceClient;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -137,57 +141,59 @@ public class PaymentService implements IPaymentService {
     @Override
     @Transactional
     public String handlePayOSResponse(PayOSRes payOSRes) {
-        try {
-            log.info("Start handle payOS response with response: {}", payOSRes.toString());
-            Payment payment = paymentRepository.findByOrderCode(payOSRes.orderCode());
+        log.info("Start handle payOS response with response: {}", payOSRes.toString());
+        Payment payment = paymentRepository.findByOrderCode(payOSRes.orderCode());
 
-            if (payment == null) throw new RuntimeException("payment not found with " + payOSRes.orderCode());
-            if (!"00".equals(payOSRes.code())) throw new RuntimeException("Invalid params");
+        if (payment == null) throw new RuntimeException("payment not found with " + payOSRes.orderCode());
+        if (!"00".equals(payOSRes.code())) throw new RuntimeException("Invalid params");
 
-            PaymentLog paymentLog = paymentMapper.convertPayOSResToPaymentLog(payOSRes);
-            paymentLog.setOrderCode(payment);
-            paymentLogRepository.save(paymentLog);
-            auditContext.setTemporaryUser(payment.getCreatedBy());
+        PaymentLog paymentLog = paymentMapper.convertPayOSResToPaymentLog(payOSRes);
+        paymentLog.setOrderCode(payment);
+        paymentLogRepository.save(paymentLog);
+        auditContext.setTemporaryUser(payment.getCreatedBy());
 
-            if (payOSRes.cancel() || "CANCELLED".equalsIgnoreCase(payOSRes.status())) {
-                payment.setPaymentStatus(PaymentStatus.FAILED.name());
-                paymentRepository.save(payment);
+        if (payOSRes.cancel() || "CANCELLED".equalsIgnoreCase(payOSRes.status())) {
+            payment.setPaymentStatus(PaymentStatus.FAILED.name());
+            paymentRepository.save(payment);
 
-                return webUrlProperties.host() + webUrlProperties.paymentFail();
-            }
+            return webUrlProperties.host() + webUrlProperties.paymentFail();
+        }
 
-            if ("PAID".equalsIgnoreCase(payOSRes.status())) {
-                payment.setPaymentStatus(PaymentStatus.PAID.name());
-                paymentRepository.save(payment);
+        if ("PAID".equalsIgnoreCase(payOSRes.status())) {
+            payment.setPaymentStatus(PaymentStatus.PAID.name());
+            paymentRepository.save(payment);
+
+            ApiResponse<BookingDetailsRes> bookingDetailsRes = bookingServiceClient.updateBookingById(payment.getBookingId());
+            log.info("Response from the booking service: {}", bookingDetailsRes.data());
 
 
-                log.info("Start retrieve booking details with booking id {}", payment.getBookingId());
-                BookingDetailsRes bookingDetailsRes = bookingServiceClient.getBookingById(payment.getBookingId());
+            ApiResponse<UserRes> userRes = userServiceClient.getUserById(bookingDetailsRes.data().userId());
+            log.info("Response from the user service: {}", userRes);
+            BookingDetailsRes bookingDetails = bookingDetailsRes.data()
+                    .withCustomerEmail(userRes.data().email())
+                    .withCustomerName(userRes.data().name());
 
-                Map<String, String> payload = new HashMap<>();
-                payload.put("bookingId", payment.getBookingId().toString());
-                payload.put("paymentMethod", payment.getPaymentMethod());
+            Map<String, String> payload = new HashMap<>();
+            payload.put("paymentMethod", payment.getPaymentMethod());
 
-                Map<String, Object> detailsMap = objectMapper.convertValue(bookingDetailsRes, new TypeReference<>() {});
-                detailsMap.forEach((key, value) -> payload.put(key, String.valueOf(value)));
+            Map<String, Object> detailsMap = objectMapper.convertValue(bookingDetails, new TypeReference<>() {
+            });
+            detailsMap.forEach((key, value) -> payload.put(key, String.valueOf(value)));
 
-                log.info("Start send email to rabbitmq server");
-                NotificationMessage notificationMessage = NotificationMessage.builder()
-                        .to(payment.getCreatedBy())
-                        .type(TypeEmail.EMAIL_PAYMENT_SUCCESS.name())
-                        .payload(payload)
-                        .build();
+            log.info("Start send email to rabbitmq server");
+            NotificationMessage notificationMessage = NotificationMessage.builder()
+                    .to(payment.getCreatedBy())
+                    .type(TypeEmail.EMAIL_PAYMENT_SUCCESS.name())
+                    .payload(payload)
+                    .build();
 
-                rabbitProducer.sendEmail(
-                        QueueName.EMAIL_PAYMENT_SUCCESS.getExchangeName(),
-                        QueueName.EMAIL_PAYMENT_SUCCESS.getRoutingKey(),
-                        notificationMessage
-                );
+            rabbitProducer.sendEmail(
+                    QueueName.EMAIL_PAYMENT_SUCCESS.getExchangeName(),
+                    QueueName.EMAIL_PAYMENT_SUCCESS.getRoutingKey(),
+                    notificationMessage
+            );
 
-                return webUrlProperties.host() + webUrlProperties.paymentSuccess();
-            }
-        } catch (Exception e) {
-            log.error("Error at handle payos response cause by: {}", e.getMessage());
+            return webUrlProperties.host() + webUrlProperties.paymentSuccess();
         }
         return webUrlProperties.host() + webUrlProperties.paymentFail();
     }

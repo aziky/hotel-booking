@@ -43,7 +43,11 @@ spring:
   config:
     activate:
       on-profile: dev
-
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: password
   datasource:
     url: jdbc:postgresql://localhost:5432/hotel-booking
     username: postgres
@@ -94,7 +98,11 @@ spring:
   config:
     activate:
       on-profile: stag
-
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}

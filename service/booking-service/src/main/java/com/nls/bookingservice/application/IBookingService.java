@@ -11,6 +11,6 @@ public interface IBookingService {
 
     ApiResponse<CreateBookingRes> createBooking(CreateBookingReq request);
 
-    ApiResponse<BookingDetailsRes> getBookingDetails(UUID bookingId);
+    ApiResponse<BookingDetailsRes> updateBookingById(UUID bookingId);
 
 }
