@@ -20,6 +20,7 @@ import java.util.UUID;
 @Table(name = "payments", schema = "payment_service")
 public class Payment {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
 
