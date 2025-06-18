@@ -3,15 +3,19 @@ package com.nls.paymentservice.api.controller;
 import com.nls.common.dto.request.CreatePaymentReq;
 import com.nls.common.dto.response.ApiResponse;
 import com.nls.common.dto.response.CreatePaymentRes;
+import com.nls.common.dto.response.PaymentRes;
 import com.nls.paymentservice.api.dto.response.PayOSRes;
 import com.nls.paymentservice.application.IPaymentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("payment")
@@ -35,5 +39,14 @@ public class PaymentController {
     @GetMapping("/IPN/payos")
     public String handleVnpayOS(@ModelAttribute PayOSRes payOSRes) {
         return "redirect:" + paymentService.handlePayOSResponse(payOSRes);
+    }
+    @GetMapping("/booking/{bookingId}")
+    public ResponseEntity<ApiResponse<PaymentRes>> getPaymentByBookingId(@PathVariable UUID bookingId) {
+        return ResponseEntity.ok(paymentService.getPaymentByBookingId(bookingId));
+    }
+
+    @PostMapping("/bookings/batch")
+    public ResponseEntity<ApiResponse<List<PaymentRes>>> getPaymentsByBookingIds(@RequestBody List<UUID> bookingIds) {
+        return ResponseEntity.ok(paymentService.getPaymentsByBookingIds(bookingIds));
     }
 }
