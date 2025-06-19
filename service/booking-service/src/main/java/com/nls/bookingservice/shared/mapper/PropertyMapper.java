@@ -10,7 +10,6 @@ import org.mapstruct.*;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +34,7 @@ public interface PropertyMapper {
 
     @Mapping(target = "currentDayPrice", expression = "java(getCurrentDayPrice(property))")
     @Mapping(target = "imageUrl", expression = "java(getFirstImageUrl(property))")
+    @Mapping(target = "createdAt", source = "createdAt") // Explicitly map createdAt
     PropertyDetailRes convertToPropertyDetailRes(Property property);
 
     default BigDecimal getCurrentDayPrice(Property property) {

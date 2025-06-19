@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nls.common.dto.request.CreatePaymentReq;
 import com.nls.common.dto.request.NotificationMessage;
-import com.nls.common.dto.response.ApiResponse;
-import com.nls.common.dto.response.BookingDetailsRes;
-import com.nls.common.dto.response.CreatePaymentRes;
-import com.nls.common.dto.response.UserRes;
+import com.nls.common.dto.response.*;
 import com.nls.common.enumration.PaymentMethod;
 import com.nls.common.enumration.PaymentStatus;
 import com.nls.common.enumration.QueueName;
@@ -28,7 +25,6 @@ import com.nls.paymentservice.infrastructure.properties.HostProperties;
 import com.nls.paymentservice.infrastructure.properties.PayOSProperties;
 import com.nls.paymentservice.infrastructure.properties.WebUrlProperties;
 import com.nls.paymentservice.shared.mapper.PaymentMapper;
-import com.nls.paymentservice.shared.utils.SecurityUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -205,5 +201,55 @@ public class PaymentService implements IPaymentService {
         int random = new Random().nextInt(900) + 100;
         return Long.parseLong(base + "" + random);
     }
+    @Override
+    public ApiResponse<PaymentRes> getPaymentByBookingId(UUID bookingId) {
+        try {
+            log.info("Getting payment for booking: {}", bookingId);
 
+            Optional<Payment> paymentOpt = paymentRepository.findByBookingId(bookingId);
+
+            if (paymentOpt.isEmpty()) {
+                log.info("No payment found for booking: {}", bookingId);
+                return ApiResponse.notFound("Payment not found", null);
+            }
+
+            PaymentRes paymentRes = convertToPaymentRes(paymentOpt.get());
+            return ApiResponse.ok(paymentRes);
+
+        } catch (Exception e) {
+            log.error("Error getting payment by booking ID: {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
+    @Override
+    public ApiResponse<List<PaymentRes>> getPaymentsByBookingIds(List<UUID> bookingIds) {
+        try {
+            log.info("Getting payments for {} bookings", bookingIds.size());
+
+            List<Payment> payments = paymentRepository.findByBookingIdIn(bookingIds);
+
+            List<PaymentRes> paymentResList = payments.stream()
+                    .map(this::convertToPaymentRes)
+                    .toList();
+
+            log.info("Found {} payments for requested bookings", paymentResList.size());
+            return ApiResponse.ok(paymentResList);
+
+        } catch (Exception e) {
+            log.error("Error getting payments by booking IDs: {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+
+    private PaymentRes convertToPaymentRes(Payment payment) {
+        return PaymentRes.builder()
+                .id(payment.getId())
+                .bookingId(payment.getBookingId())
+                .amount(payment.getAmount())
+                .paymentMethod(payment.getPaymentMethod())
+                .paymentStatus(payment.getPaymentStatus())
+                .orderCode(payment.getOrderCode())
+                .build();
+    }
 }
