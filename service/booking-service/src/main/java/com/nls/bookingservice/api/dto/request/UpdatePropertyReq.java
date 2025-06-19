@@ -32,8 +32,7 @@ public record UpdatePropertyReq(
         LocalTime checkInTime,
         @JsonFormat(pattern = "HH:mm")
         @Schema(type = "string", pattern = "HH:mm", example = "14:00")
-        LocalTime checkOutTime,
-        String updatedBy
+        LocalTime checkOutTime
 ) {
         // Nested record for day prices
         public record DayPriceReq(

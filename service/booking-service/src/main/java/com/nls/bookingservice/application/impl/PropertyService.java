@@ -14,6 +14,7 @@ import com.nls.bookingservice.domain.repository.PropertyDayPriceRepository;
 import com.nls.bookingservice.domain.repository.PropertyImageRepository;
 import com.nls.bookingservice.domain.repository.PropertyRepository;
 import com.nls.bookingservice.shared.mapper.PropertyMapper;
+import com.nls.bookingservice.shared.utils.SecurityUtil; // Add this import
 import com.nls.common.dto.response.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,7 +38,7 @@ public class PropertyService implements IPropertyService {
 
     PropertyRepository propertyRepository;
     PropertyImageRepository propertyImageRepository;
-    PropertyDayPriceRepository propertyDayPriceRepository; // Add this repository
+    PropertyDayPriceRepository propertyDayPriceRepository;
     PropertyMapper propertyMapper;
 
     @Override
@@ -67,9 +69,13 @@ public class PropertyService implements IPropertyService {
     @Transactional
     public ApiResponse<PropertyRes> addProperty(CreatePropertyReq request) {
         try {
-            log.info("Start add property with the request {}", request);
+            // Get current user as host
+            UUID currentUserId = SecurityUtil.getCurrentUserId();
+            log.info("Start add property with the request {} for host {}", request, currentUserId);
 
             Property property = propertyMapper.convertCreatePropertyReqToProperty(request);
+            // Set the current user as the host
+            property.setHostId(currentUserId);
             property = propertyRepository.save(property);
 
             // Save day prices
@@ -94,7 +100,7 @@ public class PropertyService implements IPropertyService {
                 log.info("Added property image with URL: {}", request.imageUrl());
             }
 
-            log.info("Add property successfully with id {}", property.getId());
+            log.info("Add property successfully with id {} for host {}", property.getId(), currentUserId);
             return ApiResponse.created(propertyMapper.convertToPropertyRes(property));
         } catch (Exception e) {
             log.error("Error at add property cause by {}", e.getMessage());
@@ -130,51 +136,61 @@ public class PropertyService implements IPropertyService {
     @Transactional
     public ApiResponse<PropertyRes> updateProperty(UpdatePropertyReq request) {
         try {
-            log.info("Start update property with id {}", request.id());
+            UUID currentUserId = SecurityUtil.getCurrentUserId();
+            log.info("Start update property with id {} by user {}", request.id(), currentUserId);
 
             Property property = propertyRepository.findById(request.id())
                     .orElseThrow(() -> new RuntimeException("Property not found with id " + request.id()));
 
-            propertyMapper.updatePropertyFromReq(request, property);
 
-            // Update day prices
+            // Handle day prices update using simple UPSERT approach
             if (request.dayPrices() != null) {
-                // Delete existing day prices
-                propertyDayPriceRepository.deleteByPropertyId(property.getId());
-
-                // Save new day prices
-                List<PropertyDayPrice> dayPrices = new ArrayList<>();
-                for (UpdatePropertyReq.DayPriceReq dayPriceReq : request.dayPrices()) {
-                    PropertyDayPrice dayPrice = new PropertyDayPrice();
-                    dayPrice.setPropertyId(property.getId());
-                    dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
-                    dayPrice.setPrice(dayPriceReq.price());
-                    dayPrice.setUpdatedBy(request.updatedBy());
-                    dayPrices.add(dayPrice);
-                }
-                propertyDayPriceRepository.saveAll(dayPrices);
-                property.setDayPrices(dayPrices);
-                log.info("Updated {} day prices for property", dayPrices.size());
+                upsertDayPrices(property.getId(), request.dayPrices(), currentUserId);
+                log.info("Upserted {} day prices for property", request.dayPrices().size());
             }
 
+            // Save the property
             property = propertyRepository.save(property);
 
-            log.info("Update property successfully with id {}", property.getId());
+            log.info("Update property successfully with id {} by user {}", property.getId(), currentUserId);
             return ApiResponse.ok(propertyMapper.convertToPropertyRes(property));
+
         } catch (RuntimeException e) {
             log.warn("Update property failed cause by {}", e.getMessage());
             return ApiResponse.notFound(e.getMessage(), null);
         } catch (Exception e) {
-            log.error("Error at update property cause by {}", e.getMessage());
+            log.error("Error at update property: {}", e.getMessage(), e);
             return ApiResponse.internalError();
         }
     }
+    private void upsertDayPrices(UUID propertyId, List<UpdatePropertyReq.DayPriceReq> requestDayPrices, UUID currentUserId) {
+        for (UpdatePropertyReq.DayPriceReq requestDayPrice : requestDayPrices) {
+            // Try to find existing day price
+            Optional<PropertyDayPrice> existingOpt = propertyDayPriceRepository
+                    .findByPropertyIdAndDayOfWeek(propertyId, requestDayPrice.dayOfWeek());
 
+            if (existingOpt.isPresent()) {
+                // Update existing
+                PropertyDayPrice existing = existingOpt.get();
+                existing.setPrice(requestDayPrice.price());
+                propertyDayPriceRepository.save(existing);
+            } else {
+                // Create new
+                PropertyDayPrice newDayPrice = PropertyDayPrice.builder()
+                        .propertyId(propertyId)
+                        .dayOfWeek(requestDayPrice.dayOfWeek())
+                        .price(requestDayPrice.price())
+                        .build();
+                propertyDayPriceRepository.save(newDayPrice);
+            }
+        }
+    }
     @Override
     @Transactional
     public ApiResponse<PropertyRes> deleteProperty(UUID propertyId) {
         try {
-            log.info("Start delete property with id {}", propertyId);
+            UUID currentUserId = SecurityUtil.getCurrentUserId();
+            log.info("Start delete property with id {} by user {}", propertyId, currentUserId);
 
             Property property = propertyRepository.findById(propertyId)
                     .orElseThrow(() -> new RuntimeException("Property not found with id " + propertyId));
@@ -183,7 +199,8 @@ public class PropertyService implements IPropertyService {
             property.setStatus(PropertyStatus.INACTIVE);
             property = propertyRepository.save(property);
 
-            log.info("Delete property (set to INACTIVE) successfully with id {}", property.getId());
+            log.info("Delete property (set to INACTIVE) successfully with id {} by user {}",
+                    property.getId(), currentUserId);
             return ApiResponse.ok(propertyMapper.convertToPropertyRes(property));
         } catch (RuntimeException e) {
             log.warn("Delete property failed cause by {}", e.getMessage());

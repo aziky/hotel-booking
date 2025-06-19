@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,4 +19,12 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     List<Booking> findByUserIdOrderByCreatedAtDesc(@Param("userId") UUID userId);
 
     Page<Booking> findByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.createdAt BETWEEN :fromDate AND :toDate")
+    Long countBookingsInDateRange(@Param("fromDate") LocalDateTime fromDate,
+                                  @Param("toDate") LocalDateTime toDate);
+
+    @Query("SELECT COUNT(b) FROM Booking b WHERE b.bookingStatus = :status AND b.createdAt BETWEEN :fromDate AND :toDate")
+    Long countBookingsByStatusInDateRange(@Param("status") String status,
+                                          @Param("fromDate") LocalDateTime fromDate,
+                                          @Param("toDate") LocalDateTime toDate);
 }

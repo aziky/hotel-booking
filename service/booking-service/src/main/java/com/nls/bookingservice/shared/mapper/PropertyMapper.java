@@ -134,7 +134,6 @@ public interface PropertyMapper {
                 dayPrice.setPropertyId(property.getId());
                 dayPrice.setDayOfWeek(dayPriceReq.dayOfWeek());
                 dayPrice.setPrice(dayPriceReq.price());
-                dayPrice.setUpdatedBy(request.updatedBy());
                 property.getDayPrices().add(dayPrice);
             }
         }

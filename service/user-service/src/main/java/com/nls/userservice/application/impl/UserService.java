@@ -254,10 +254,10 @@ public class UserService implements IUserService {
     }
     @Transactional
     @Override
-    public ApiResponse<UserRes> changeUserRole(ChangeRoleReq request) {
+    public ApiResponse<UserRes> changeUserRole() {
         try {
             UUID userId = SecurityUtil.getCurrentUserId();
-            log.info("Start change user role with request: {}", request);
+            log.info("Start change user role to HOST for user: {}", userId);
 
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new EntityNotFoundException("User not found"));
@@ -268,13 +268,7 @@ public class UserService implements IUserService {
                 return ApiResponse.badRequest("Only users with USER role can change to HOST role");
             }
 
-            // Validate target role
-            if (!Role.HOST.name().equals(request.targetRole())) {
-                log.warn("Role change denied: Invalid target role {}", request.targetRole());
-                return ApiResponse.badRequest("Only role change to HOST is allowed");
-            }
-
-            // Update user role
+            // Update user role to HOST (no need to validate target role since it's fixed)
             user.setRole(Role.HOST.name());
             userRepository.save(user);
 
