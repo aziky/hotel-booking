@@ -75,10 +75,10 @@ public class BookingService implements IBookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
-
         booking.setBookingStatus(BookingStatus.PAID.name());
         bookingRepository.save(booking);
+
+        BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
 
         return ApiResponse.ok(bookingDetailsRes);
     }
