@@ -94,6 +94,7 @@ public class PaymentService implements IPaymentService {
                             .returnUrl(hostProperties.server() + payOSProperties.returnUrl())
                             .cancelUrl(hostProperties.server() + payOSProperties.returnUrl())
                             .build();
+                    log.info("Creating payment link with data: {}", objectMapper.writeValueAsString(paymentData));
                     CheckoutResponseData payOSResponse = payOS.createPaymentLink(paymentData);
                     urlPayment = payOSResponse.getCheckoutUrl();
                     break;
