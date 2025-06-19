@@ -39,6 +39,8 @@ public record PropertyDetailRes(
         LocalTime checkOutTime,
         PropertyStatus status,
         String imageUrl,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        LocalDateTime createdAt,
         List<PropertyAmenityRes> amenities,
         List<PropertyCategoryRes> categories
 ) {
