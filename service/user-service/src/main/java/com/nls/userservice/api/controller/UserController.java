@@ -49,7 +49,7 @@ public class UserController {
         return ResponseEntity.ok(userService.resetPassword(request));
     }
     @PostMapping("/change-role")
-    public ResponseEntity<ApiResponse<UserRes>> changeUserRole(@RequestBody @Valid ChangeRoleReq request) {
-        return ResponseEntity.ok(userService.changeUserRole(request));
+    public ResponseEntity<ApiResponse<UserRes>> changeUserRole() {
+        return ResponseEntity.ok(userService.changeUserRole());
     }
 }

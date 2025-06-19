@@ -3,6 +3,7 @@ package com.nls.userservice.application;
 import com.nls.common.dto.response.ApiResponse;
 import com.nls.userservice.api.dto.request.*;
 import com.nls.common.dto.response.UserRes;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -22,7 +23,5 @@ public interface IUserService {
 
     ApiResponse<UserRes> resetPassword(ResetPasswordReq request);
 
-    ApiResponse<UserRes> changeUserRole(ChangeRoleReq request);
-
-
+    ApiResponse<UserRes> changeUserRole();
 }

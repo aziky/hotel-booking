@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
@@ -21,6 +22,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "property_day_prices", schema = "booking_service")
 @Check(constraints = "day_of_week BETWEEN 2 AND 8")
+@Builder
 public class PropertyDayPrice {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

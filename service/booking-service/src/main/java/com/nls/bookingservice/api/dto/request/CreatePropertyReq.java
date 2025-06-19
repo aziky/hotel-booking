@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.UUID;
 
 public record CreatePropertyReq(
-        UUID hostId,
         String title,
         String description,
         String propertyType,
