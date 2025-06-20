@@ -68,20 +68,41 @@ public class BookingService implements IBookingService {
         return ApiResponse.created(new CreateBookingRes(paymentResponse.data().paymentUrl()));
     }
 
+//    @Transactional
+//    @Override
+//    public ApiResponse<BookingDetailsRes> updateBookingById(UUID bookingId) {
+//        log.info("Start handle get booking details with ID {}", bookingId);
+//        Booking booking = bookingRepository.findById(bookingId)
+//                .orElseThrow(() -> new RuntimeException("Booking not found"));
+//
+//        booking.setBookingStatus(BookingStatus.PAID.name());
+//        bookingRepository.save(booking);
+//
+//        BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
+//
+//        return ApiResponse.ok(bookingDetailsRes);
+//    }
+
     @Transactional
     @Override
     public ApiResponse<BookingDetailsRes> updateBookingById(UUID bookingId) {
-        log.info("Start handle get booking details with ID {}", bookingId);
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        try {
+            log.info("Start handle get booking details with ID {}", bookingId);
+            Booking booking = bookingRepository.findById(bookingId)
+                    .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        booking.setBookingStatus(BookingStatus.PAID.name());
-        bookingRepository.save(booking);
+            booking.setBookingStatus(BookingStatus.PAID.name());
+            bookingRepository.save(booking);
 
-        BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
+            BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
 
-        return ApiResponse.ok(bookingDetailsRes);
+            return ApiResponse.ok(bookingDetailsRes);
+        } catch (Exception e) {
+            log.error("Error at update booking by id: {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
     }
+
     @Override
     public ApiResponse<List<UserBookingRes>> getUserBookings() {
         try {
