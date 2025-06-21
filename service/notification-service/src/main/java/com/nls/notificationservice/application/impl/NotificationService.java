@@ -14,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class NotificationService implements INotificationService {
     ITemplateRepository templateRepository;
     INotificationRepository notificationRepository;
 
+    @Transactional
     @Override
     public void sendEmail(NotificationMessage notificationMessage) {
         try {
