@@ -78,6 +78,7 @@ public class BookingService implements IBookingService {
 
         booking.setBookingStatus(BookingStatus.PAID.name());
         bookingRepository.save(booking);
+        log.info("update booking successfully");
 
         BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
 
