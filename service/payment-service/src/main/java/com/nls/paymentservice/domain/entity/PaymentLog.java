@@ -4,8 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
@@ -44,16 +48,20 @@ public class PaymentLog {
     @Column(name = "code", length = 10)
     private String code;
 
+    @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @CreatedBy
     @Size(max = 50)
     @Column(name = "created_by", length = 50)
     private String createdBy;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @LastModifiedBy
     @Size(max = 50)
     @Column(name = "updated_by", length = 50)
     private String updatedBy;
