@@ -63,7 +63,6 @@ public class PaymentService implements IPaymentService {
     public ApiResponse<CreatePaymentRes> createPayment(CreatePaymentReq request) {
         try {
             log.info("Start create payment with request {}", request);
-            auditContext.setTemporaryUser(request.email());
             long orderCode = generateSafeOrderCode();
             Payment payment = Payment.builder()
                     .bookingId(request.bookingId())
