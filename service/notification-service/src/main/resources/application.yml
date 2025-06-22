@@ -28,7 +28,7 @@ springdoc:
 
 mailjet:
   email: nls.hotel.booking@gmail.com
-  name: NonLaService Hotel
+  name: Non La Retreat
 
 ---
 spring:
@@ -50,8 +50,8 @@ spring:
   mail:
     host: in-v3.mailjet.com
     port: 587
-    username: d03b54669cfdc86e588d61b12c23f090
-    password: 0c54d42e5becc1575bc99d3bd97fe612
+    username: 6f9a2724df9e4b7efd227c3097916d4c
+    password: c63d5cdd250813e8b7271c15154e3faa
     properties:
       mail:
         smtp:
