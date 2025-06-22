@@ -27,6 +27,7 @@ import com.nls.paymentservice.infrastructure.properties.WebUrlProperties;
 import com.nls.paymentservice.shared.mapper.PaymentMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -58,60 +59,55 @@ public class PaymentService implements IPaymentService {
     HostProperties hostProperties;
     UserServiceClient userServiceClient;
 
-    @Transactional(rollbackFor = Exception.class)
+    @SneakyThrows
+    @Transactional
     @Override
     public ApiResponse<CreatePaymentRes> createPayment(CreatePaymentReq request) {
-        try {
-            log.info("Start create payment with request {}", request);
-            auditContext.setTemporaryUser(request.email());
-            long orderCode = generateSafeOrderCode();
-            Payment payment = Payment.builder()
-                    .bookingId(request.bookingId())
-                    .amount(request.totalAmount())
-                    .paymentMethod(request.paymentMethod())
-                    .paymentStatus(PaymentStatus.PENDING.name())
-                    .orderCode(orderCode)
-                    .build();
+        log.info("Start create payment with request {}", request);
+        long orderCode = generateSafeOrderCode();
+        Payment payment = Payment.builder()
+                .bookingId(request.bookingId())
+                .amount(request.totalAmount())
+                .paymentMethod(request.paymentMethod())
+                .paymentStatus(PaymentStatus.PENDING.name())
+                .orderCode(orderCode)
+                .build();
 
-            paymentRepository.save(payment);
+        paymentRepository.save(payment);
 
-            String urlPayment;
+        String urlPayment;
 
-            switch (PaymentMethod.valueOf(request.paymentMethod())) {
-                case VNPAY: {
-                    urlPayment = vnpayGateway.createPaymentUrl(request, payment.getId());
-                    break;
-                }
-                case PAYOS: {
-                    PaymentData paymentData = PaymentData.builder()
-                            .orderCode(orderCode)
-                            .description("nls-hotel")
-                            .amount(request.totalAmount().setScale(0, RoundingMode.FLOOR).intValue())
-                            .returnUrl(hostProperties.server() + payOSProperties.returnUrl())
-                            .cancelUrl(hostProperties.server() + payOSProperties.returnUrl())
-                            .build();
-                    log.info("Creating payment link with data: {}", objectMapper.writeValueAsString(paymentData));
-                    CheckoutResponseData payOSResponse = payOS.createPaymentLink(paymentData);
-                    urlPayment = payOSResponse.getCheckoutUrl();
-                    break;
-                }
-                default: {
-                    throw new IllegalArgumentException("Invalid payment method");
-                }
+        switch (PaymentMethod.valueOf(request.paymentMethod())) {
+            case VNPAY: {
+                urlPayment = vnpayGateway.createPaymentUrl(request, payment.getId());
+                break;
             }
-
-            if (urlPayment == null) throw new RuntimeException("Payment not created");
-
-            log.info("payment url: {}", urlPayment);
-
-            CreatePaymentRes createPaymentRes = CreatePaymentRes.builder()
-                    .paymentUrl(urlPayment)
-                    .build();
-            return ApiResponse.created(createPaymentRes);
-        } catch (Exception e) {
-            log.error("Error at creat payment cause by {}", e.getMessage());
-            return ApiResponse.internalError();
+            case PAYOS: {
+                PaymentData paymentData = PaymentData.builder()
+                        .orderCode(orderCode)
+                        .description("nls-hotel")
+                        .amount(request.totalAmount().setScale(0, RoundingMode.FLOOR).intValue())
+                        .returnUrl(hostProperties.server() + payOSProperties.returnUrl())
+                        .cancelUrl(hostProperties.server() + payOSProperties.returnUrl())
+                        .build();
+                log.info("Creating payment link with data: {}", objectMapper.writeValueAsString(paymentData));
+                CheckoutResponseData payOSResponse = payOS.createPaymentLink(paymentData);
+                urlPayment = payOSResponse.getCheckoutUrl();
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException("Invalid payment method");
+            }
         }
+
+        if (urlPayment == null) throw new RuntimeException("Payment not created");
+
+        log.info("payment url {} with payment method: {}", payment.getPaymentMethod(), urlPayment);
+
+        CreatePaymentRes createPaymentRes = CreatePaymentRes.builder()
+                .paymentUrl(urlPayment)
+                .build();
+        return ApiResponse.created(createPaymentRes);
     }
 
     @Override
@@ -201,6 +197,7 @@ public class PaymentService implements IPaymentService {
         int random = new Random().nextInt(900) + 100;
         return Long.parseLong(base + "" + random);
     }
+
     @Override
     public ApiResponse<PaymentRes> getPaymentByBookingId(UUID bookingId) {
         try {

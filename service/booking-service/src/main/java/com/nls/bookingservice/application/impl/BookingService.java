@@ -8,11 +8,13 @@ import com.nls.bookingservice.domain.entity.Booking;
 import com.nls.bookingservice.domain.repository.BookingRepository;
 import com.nls.bookingservice.infrastructure.external.client.PaymentClient;
 import com.nls.bookingservice.infrastructure.external.client.PaymentServerClient;
-import com.nls.bookingservice.infrastructure.external.client.UserServiceClient;
 import com.nls.bookingservice.shared.mapper.BookingMapper;
 import com.nls.bookingservice.shared.utils.SecurityUtil;
 import com.nls.common.dto.request.CreatePaymentReq;
-import com.nls.common.dto.response.*;
+import com.nls.common.dto.response.ApiResponse;
+import com.nls.common.dto.response.BookingDetailsRes;
+import com.nls.common.dto.response.CreatePaymentRes;
+import com.nls.common.dto.response.PaymentRes;
 import com.nls.common.enumration.BookingStatus;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +41,7 @@ public class BookingService implements IBookingService {
     BookingRepository bookingRepository;
     BookingMapper bookingMapper;
     PaymentServerClient paymentServerClient;
-    private final UserServiceClient userServiceClient;
-    private final PaymentClient paymentClient;
+    PaymentClient paymentClient;
 
     @Override
     @Transactional
@@ -75,13 +76,17 @@ public class BookingService implements IBookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
-
         booking.setBookingStatus(BookingStatus.PAID.name());
         bookingRepository.save(booking);
+        log.info("update booking successfully");
+
+        BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
 
         return ApiResponse.ok(bookingDetailsRes);
     }
+
+
+
     @Override
     public ApiResponse<List<UserBookingRes>> getUserBookings() {
         try {
