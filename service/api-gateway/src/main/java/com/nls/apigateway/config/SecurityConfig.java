@@ -1,6 +1,7 @@
 package com.nls.apigateway.config;
 
 import com.nls.apigateway.filter.JWTAuthenticationFilter;
+import com.nls.apigateway.properties.WebUrlProperties;
 import com.nls.common.enumration.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,8 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JWTAuthenticationFilter jwtAuthFilter;
+    private final WebUrlProperties webUrlProperties;
+
     private static final String USER_PREFIX = "/user-service/api";
     private static final String BOOKING_PREFIX = "/booking-service/api";
     private static final String PAYMENT_PREFIX = "/payment-service/api";
@@ -85,7 +88,7 @@ public class SecurityConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowCredentials(true);
-        corsConfig.addAllowedOrigin("http://34.124.245.123:8050");
+        corsConfig.addAllowedOrigin(webUrlProperties.host());
         corsConfig.addAllowedOrigin("http://localhost:8050");
         corsConfig.addAllowedHeader("*");
         corsConfig.addAllowedMethod("*");
