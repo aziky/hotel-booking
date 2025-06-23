@@ -7,7 +7,6 @@ import com.nls.bookingservice.application.IBookingService;
 import com.nls.bookingservice.domain.entity.Booking;
 import com.nls.bookingservice.domain.repository.BookingRepository;
 import com.nls.bookingservice.infrastructure.external.client.PaymentClient;
-import com.nls.bookingservice.infrastructure.external.client.PaymentServerClient;
 import com.nls.bookingservice.shared.mapper.BookingMapper;
 import com.nls.bookingservice.shared.utils.SecurityUtil;
 import com.nls.common.dto.request.CreatePaymentReq;
@@ -40,7 +39,6 @@ public class BookingService implements IBookingService {
     static long BOOKING_EXPIRE_DURATION_MINUTES = 30;
     BookingRepository bookingRepository;
     BookingMapper bookingMapper;
-    PaymentServerClient paymentServerClient;
     PaymentClient paymentClient;
 
     @Override
@@ -58,7 +56,7 @@ public class BookingService implements IBookingService {
         CreatePaymentReq createPaymentReq = bookingMapper.convertCreateBookingToCreatePaymentReq(booking);
         createPaymentReq = createPaymentReq.withEmail(SecurityUtil.getCurrentEmail())
                 .withPaymentMethod(request.paymentMethod());
-        ApiResponse<CreatePaymentRes> paymentResponse = paymentServerClient.createPayment(createPaymentReq);
+        ApiResponse<CreatePaymentRes> paymentResponse = paymentClient.createPayment(createPaymentReq);
 
         if (paymentResponse.code() != HttpStatus.CREATED.value()) {
             log.error("Create payment failed with response: {}", paymentResponse);
