@@ -96,3 +96,6 @@ eureka:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
+
+web-url:
+  host: ${WEB_URL_HOST}
