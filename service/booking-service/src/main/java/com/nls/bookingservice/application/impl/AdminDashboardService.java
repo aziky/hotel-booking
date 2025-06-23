@@ -9,7 +9,7 @@ import com.nls.bookingservice.application.IAdminDashboardService;
 import com.nls.bookingservice.domain.repository.BookingRepository;
 import com.nls.bookingservice.domain.repository.PropertyRepository;
 import com.nls.bookingservice.infrastructure.external.client.PaymentClient;
-import com.nls.bookingservice.infrastructure.external.client.UserServiceClient;
+import com.nls.bookingservice.infrastructure.external.client.UserClient;
 import com.nls.common.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class AdminDashboardService implements IAdminDashboardService {
 
     private final PropertyRepository propertyRepository;
     private final BookingRepository bookingRepository;
-    private final UserServiceClient userServiceClient;
+    private final UserClient userClient;
     private final PaymentClient paymentClient;
 
     @Override
@@ -83,7 +83,7 @@ public class AdminDashboardService implements IAdminDashboardService {
     private Long getUserCount(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
         try {
             // Call user service to get new user count
-            ApiResponse<Long> userCountResponse = userServiceClient.getNewUserCount(fromDateTime, toDateTime);
+            ApiResponse<Long> userCountResponse = userClient.getNewUserCount(fromDateTime, toDateTime);
             return userCountResponse.data() != null ? userCountResponse.data() : 0L;
         } catch (Exception e) {
             log.error("Error getting user count: {}", e.getMessage());
