@@ -1,6 +1,7 @@
 package com.nls.userservice.api.controller;
 
 import com.nls.common.dto.response.ApiResponse;
+import com.nls.userservice.api.dto.request.CreateReviewReq;
 import com.nls.userservice.application.IReviewService;
 import com.nls.userservice.domain.entity.Review;
 import lombok.AccessLevel;
@@ -45,5 +46,11 @@ public class ReviewController {
         log.info("Request to get review count from {} to {}", fromDate, toDate);
         ApiResponse<Long> response = reviewService.getReviewCount(fromDate, toDate);
         return ResponseEntity.ok(response);
+    }
+
+
+    @PostMapping()
+    public ApiResponse<Void> createReview(@RequestBody CreateReviewReq request) {
+        return reviewService.addReview(request);
     }
 }
