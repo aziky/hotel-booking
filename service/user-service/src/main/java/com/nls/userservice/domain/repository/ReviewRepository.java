@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,4 +17,5 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.propertyId = :propertyId")
     Double getAverageRatingByPropertyId(@Param("propertyId") UUID propertyId);
+    Long countByCreatedAtBetween(LocalDateTime fromDate, LocalDateTime toDate);
 }

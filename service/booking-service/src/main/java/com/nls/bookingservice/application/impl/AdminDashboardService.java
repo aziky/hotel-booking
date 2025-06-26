@@ -52,13 +52,17 @@ public class AdminDashboardService implements IAdminDashboardService {
             // 5. Booking statistics
             BookingStats bookingStats = getBookingStats(fromDateTime, toDateTime);
 
-            // 6. Growth rates (optional - compare with previous period)
-            GrowthMetrics growth = calculateGrowthMetrics(request, revenueData.totalRevenue());
+            // 6. Review count (NEW)
+            Long totalReviews = getReviewCount(fromDateTime, toDateTime);
+
+            // 7. Growth rates (compare with previous period)
+            GrowthMetrics growth = calculateGrowthMetrics(request, revenueData.totalRevenue(), totalReviews);
 
             AdminDashboardRes response = AdminDashboardRes.builder()
                     .totalProperties(totalProperties)
                     .newUsers(newUsers)
                     .totalHosts(totalHosts)
+                    .totalReviews(totalReviews) // NEW
                     .totalRevenue(revenueData.totalRevenue())
                     .completedPayments(revenueData.completedPayments())
                     .pendingPayments(revenueData.pendingPayments())
@@ -71,7 +75,8 @@ public class AdminDashboardService implements IAdminDashboardService {
                     .revenueGrowthRate(growth.revenueGrowthRate())
                     .build();
 
-            log.info("Dashboard stats calculated successfully");
+            log.info("Dashboard stats calculated successfully - Properties: {}, Users: {}, Reviews: {}",
+                    totalProperties, newUsers, totalReviews);
             return ApiResponse.ok(response);
 
         } catch (Exception e) {
@@ -87,6 +92,18 @@ public class AdminDashboardService implements IAdminDashboardService {
             return userCountResponse.data() != null ? userCountResponse.data() : 0L;
         } catch (Exception e) {
             log.error("Error getting user count: {}", e.getMessage());
+            return 0L;
+        }
+    }
+
+    // NEW: Get review count method
+    private Long getReviewCount(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
+        try {
+            // Call user service to get review count
+            ApiResponse<Long> reviewCountResponse = userClient.getReviewCount(fromDateTime, toDateTime);
+            return reviewCountResponse.data() != null ? reviewCountResponse.data() : 0L;
+        } catch (Exception e) {
+            log.error("Error getting review count: {}", e.getMessage());
             return 0L;
         }
     }
@@ -134,7 +151,8 @@ public class AdminDashboardService implements IAdminDashboardService {
         }
     }
 
-    private GrowthMetrics calculateGrowthMetrics(AdminDashboardReq request, BigDecimal currentRevenue) {
+    // Updated to include review growth calculation
+    private GrowthMetrics calculateGrowthMetrics(AdminDashboardReq request, BigDecimal currentRevenue, Long currentReviews) {
         try {
             // Calculate previous period (same duration before fromDate)
             long daysDiff = request.toDate().toEpochDay() - request.fromDate().toEpochDay();
@@ -144,11 +162,13 @@ public class AdminDashboardService implements IAdminDashboardService {
             // Get previous period data
             Long prevUsers = getUserCount(prevFromDateTime, prevToDateTime);
             RevenueData prevRevenue = getRevenueData(prevFromDateTime, prevToDateTime);
+            Long prevReviews = getReviewCount(prevFromDateTime, prevToDateTime); // NEW
 
             // Calculate growth rates
-            Double userGrowthRate = calculateGrowthRate(getUserCount(
-                    request.fromDate().atStartOfDay(), request.toDate().atTime(23, 59, 59)), prevUsers);
+            Long currentUsers = getUserCount(request.fromDate().atStartOfDay(), request.toDate().atTime(23, 59, 59));
+            Double userGrowthRate = calculateGrowthRate(currentUsers, prevUsers);
             Double revenueGrowthRate = calculateGrowthRate(currentRevenue, prevRevenue.totalRevenue());
+            Double reviewGrowthRate = calculateGrowthRate(currentReviews, prevReviews); // NEW
 
             return GrowthMetrics.builder()
                     .userGrowthRate(userGrowthRate)
