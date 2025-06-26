@@ -77,8 +77,8 @@ public class Property {
     @Column(name = "beds", nullable = false)
     private Integer beds;
 
-    @Column(name = "bathrooms", nullable = false, precision = 3, scale = 1)
-    private BigDecimal bathrooms;
+    @Column(name = "bathrooms", nullable = false)
+    private Integer bathrooms;
 
     @Column(name = "check_in_time")
     private LocalTime checkInTime;
