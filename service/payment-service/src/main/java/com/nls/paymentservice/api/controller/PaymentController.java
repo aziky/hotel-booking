@@ -16,6 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -57,11 +58,16 @@ public class PaymentController {
 
     @GetMapping("/revenue")
     public ResponseEntity<ApiResponse<RevenueData>> getRevenueData(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
 
         log.info("Request to get revenue data from {} to {}", fromDate, toDate);
-        ApiResponse<RevenueData> response = paymentService.getRevenueData(fromDate, toDate);
+
+        // Convert LocalDate to LocalDateTime in service
+        LocalDateTime fromDateTime = fromDate.atStartOfDay();
+        LocalDateTime toDateTime = toDate.atTime(23, 59, 59);
+
+        ApiResponse<RevenueData> response = paymentService.getRevenueData(fromDateTime, toDateTime);
         return ResponseEntity.ok(response);
     }
 }

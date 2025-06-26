@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,17 +22,17 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     @Query("SELECT p FROM Payment p WHERE p.bookingId IN :bookingIds")
     List<Payment> findByBookingIdIn(@Param("bookingIds") List<UUID> bookingIds);
 
-    // NEW: Revenue calculation methods for admin dashboard
+    // UPDATED: Revenue calculation methods using Instant instead of LocalDateTime
 
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.createdAt BETWEEN :fromDate AND :toDate")
-    BigDecimal getTotalRevenueInDateRange(@Param("fromDate") LocalDateTime fromDate,
-                                          @Param("toDate") LocalDateTime toDate);
+    BigDecimal getTotalRevenueInDateRange(@Param("fromDate") Instant fromDate,
+                                          @Param("toDate") Instant toDate);
 
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentStatus = 'COMPLETED' AND p.createdAt BETWEEN :fromDate AND :toDate")
-    BigDecimal getCompletedPaymentsInDateRange(@Param("fromDate") LocalDateTime fromDate,
-                                               @Param("toDate") LocalDateTime toDate);
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentStatus = 'PAID' AND p.createdAt BETWEEN :fromDate AND :toDate")
+    BigDecimal getCompletedPaymentsInDateRange(@Param("fromDate") Instant fromDate,
+                                               @Param("toDate") Instant toDate);
 
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentStatus = 'PENDING' AND p.createdAt BETWEEN :fromDate AND :toDate")
-    BigDecimal getPendingPaymentsInDateRange(@Param("fromDate") LocalDateTime fromDate,
-                                             @Param("toDate") LocalDateTime toDate);
+    BigDecimal getPendingPaymentsInDateRange(@Param("fromDate") Instant fromDate,
+                                             @Param("toDate") Instant toDate);
 }

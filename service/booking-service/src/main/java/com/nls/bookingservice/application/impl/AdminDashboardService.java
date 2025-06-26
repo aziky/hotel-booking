@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -34,25 +36,32 @@ public class AdminDashboardService implements IAdminDashboardService {
             log.info("Calculating dashboard stats for period: {} to {}",
                     request.fromDate(), request.toDate());
 
+            // Validate date range
+            if (request.fromDate().isAfter(request.toDate())) {
+                log.warn("Invalid date range: fromDate {} is after toDate {}",
+                        request.fromDate(), request.toDate());
+                return ApiResponse.badRequest("From date cannot be after to date");
+            }
+
             LocalDateTime fromDateTime = request.fromDate().atStartOfDay();
             LocalDateTime toDateTime = request.toDate().atTime(23, 59, 59);
 
             // 1. Property counts
-            Long totalProperties = propertyRepository.countPropertiesInDateRange(fromDateTime, toDateTime);
+            Long totalProperties = getTotalProperties(fromDateTime, toDateTime);
 
             // 2. New users count (call user service)
             Long newUsers = getUserCount(fromDateTime, toDateTime);
 
             // 3. Host count
-            Long totalHosts = propertyRepository.countDistinctHostsInDateRange(fromDateTime, toDateTime);
+            Long totalHosts = getTotalHosts(fromDateTime, toDateTime);
 
-            // 4. Revenue data (call payment service)
-            RevenueData revenueData = getRevenueData(fromDateTime, toDateTime);
+            // 4. Revenue data (call payment service) - FIXED: Use LocalDate
+            RevenueData revenueData = getRevenueData(request.fromDate(), request.toDate());
 
             // 5. Booking statistics
             BookingStats bookingStats = getBookingStats(fromDateTime, toDateTime);
 
-            // 6. Review count (NEW)
+            // 6. Review count
             Long totalReviews = getReviewCount(fromDateTime, toDateTime);
 
             // 7. Growth rates (compare with previous period)
@@ -62,7 +71,7 @@ public class AdminDashboardService implements IAdminDashboardService {
                     .totalProperties(totalProperties)
                     .newUsers(newUsers)
                     .totalHosts(totalHosts)
-                    .totalReviews(totalReviews) // NEW
+                    .totalReviews(totalReviews)
                     .totalRevenue(revenueData.totalRevenue())
                     .completedPayments(revenueData.completedPayments())
                     .pendingPayments(revenueData.pendingPayments())
@@ -75,8 +84,8 @@ public class AdminDashboardService implements IAdminDashboardService {
                     .revenueGrowthRate(growth.revenueGrowthRate())
                     .build();
 
-            log.info("Dashboard stats calculated successfully - Properties: {}, Users: {}, Reviews: {}",
-                    totalProperties, newUsers, totalReviews);
+            log.info("Dashboard stats calculated successfully - Properties: {}, Users: {}, Reviews: {}, Revenue: {}",
+                    totalProperties, newUsers, totalReviews, revenueData.totalRevenue());
             return ApiResponse.ok(response);
 
         } catch (Exception e) {
@@ -85,61 +94,91 @@ public class AdminDashboardService implements IAdminDashboardService {
         }
     }
 
+    private Long getTotalProperties(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
+        try {
+            return propertyRepository.countPropertiesInDateRange(fromDateTime, toDateTime);
+        } catch (Exception e) {
+            log.error("Error getting property count: {}", e.getMessage());
+            return 0L;
+        }
+    }
+
+    private Long getTotalHosts(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
+        try {
+            return propertyRepository.countDistinctHostsInDateRange(fromDateTime, toDateTime);
+        } catch (Exception e) {
+            log.error("Error getting host count: {}", e.getMessage());
+            return 0L;
+        }
+    }
+
     private Long getUserCount(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
         try {
-            // Call user service to get new user count
             ApiResponse<Long> userCountResponse = userClient.getNewUserCount(fromDateTime, toDateTime);
-            return userCountResponse.data() != null ? userCountResponse.data() : 0L;
+            if (userCountResponse != null && userCountResponse.data() != null) {
+                return userCountResponse.data();
+            }
+            log.warn("User service returned null response");
+            return 0L;
         } catch (Exception e) {
             log.error("Error getting user count: {}", e.getMessage());
             return 0L;
         }
     }
 
-    // NEW: Get review count method
     private Long getReviewCount(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
         try {
-            // Call user service to get review count
             ApiResponse<Long> reviewCountResponse = userClient.getReviewCount(fromDateTime, toDateTime);
-            return reviewCountResponse.data() != null ? reviewCountResponse.data() : 0L;
+            if (reviewCountResponse != null && reviewCountResponse.data() != null) {
+                return reviewCountResponse.data();
+            }
+            log.warn("User service returned null review count");
+            return 0L;
         } catch (Exception e) {
             log.error("Error getting review count: {}", e.getMessage());
             return 0L;
         }
     }
 
-    private RevenueData getRevenueData(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
+    // FIXED: Use LocalDate instead of LocalDateTime for Payment Service
+    private RevenueData getRevenueData(LocalDate fromDate, LocalDate toDate) {
         try {
-            // Call payment service to get revenue data
-            ApiResponse<RevenueData> revenueResponse = paymentClient.getRevenueData(fromDateTime, toDateTime);
-            return revenueResponse.data() != null ? revenueResponse.data() :
-                    RevenueData.builder()
-                            .totalRevenue(BigDecimal.ZERO)
-                            .completedPayments(BigDecimal.ZERO)
-                            .pendingPayments(BigDecimal.ZERO)
-                            .build();
+            log.debug("Calling payment service for revenue data from {} to {}", fromDate, toDate);
+            ApiResponse<RevenueData> revenueResponse = paymentClient.getRevenueData(fromDate, toDate);
+
+            if (revenueResponse != null && revenueResponse.data() != null) {
+                log.debug("Revenue data received: {}", revenueResponse.data());
+                return revenueResponse.data();
+            }
+
+            log.warn("Payment service returned null revenue data");
+            return createEmptyRevenueData();
         } catch (Exception e) {
-            log.error("Error getting revenue data: {}", e.getMessage());
-            return RevenueData.builder()
-                    .totalRevenue(BigDecimal.ZERO)
-                    .completedPayments(BigDecimal.ZERO)
-                    .pendingPayments(BigDecimal.ZERO)
-                    .build();
+            log.error("Error getting revenue data from payment service: {}", e.getMessage());
+            return createEmptyRevenueData();
         }
+    }
+
+    private RevenueData createEmptyRevenueData() {
+        return RevenueData.builder()
+                .totalRevenue(BigDecimal.ZERO)
+                .completedPayments(BigDecimal.ZERO)
+                .pendingPayments(BigDecimal.ZERO)
+                .build();
     }
 
     private BookingStats getBookingStats(LocalDateTime fromDateTime, LocalDateTime toDateTime) {
         try {
             Long totalBookings = bookingRepository.countBookingsInDateRange(fromDateTime, toDateTime);
             Long completedBookings = bookingRepository.countBookingsByStatusInDateRange(
-                    "CONFIRMED", fromDateTime, toDateTime);
+                    "PAID", fromDateTime, toDateTime);
             Long cancelledBookings = bookingRepository.countBookingsByStatusInDateRange(
-                    "CANCELLED", fromDateTime, toDateTime);
+                    "PENDING", fromDateTime, toDateTime);
 
             return BookingStats.builder()
-                    .totalBookings(totalBookings)
-                    .completedBookings(completedBookings)
-                    .cancelledBookings(cancelledBookings)
+                    .totalBookings(totalBookings != null ? totalBookings : 0L)
+                    .completedBookings(completedBookings != null ? completedBookings : 0L)
+                    .cancelledBookings(cancelledBookings != null ? cancelledBookings : 0L)
                     .build();
         } catch (Exception e) {
             log.error("Error getting booking stats: {}", e.getMessage());
@@ -151,24 +190,35 @@ public class AdminDashboardService implements IAdminDashboardService {
         }
     }
 
-    // Updated to include review growth calculation
+    // FIXED: Updated to use LocalDate for payment service calls
     private GrowthMetrics calculateGrowthMetrics(AdminDashboardReq request, BigDecimal currentRevenue, Long currentReviews) {
         try {
             // Calculate previous period (same duration before fromDate)
             long daysDiff = request.toDate().toEpochDay() - request.fromDate().toEpochDay();
-            LocalDateTime prevFromDateTime = request.fromDate().minusDays(daysDiff + 1).atStartOfDay();
-            LocalDateTime prevToDateTime = request.fromDate().minusDays(1).atTime(23, 59, 59);
+            LocalDate prevFromDate = request.fromDate().minusDays(daysDiff + 1);
+            LocalDate prevToDate = request.fromDate().minusDays(1);
+
+            LocalDateTime prevFromDateTime = prevFromDate.atStartOfDay();
+            LocalDateTime prevToDateTime = prevToDate.atTime(23, 59, 59);
+
+            log.debug("Calculating growth metrics - Current period: {} to {}, Previous period: {} to {}",
+                    request.fromDate(), request.toDate(), prevFromDate, prevToDate);
 
             // Get previous period data
             Long prevUsers = getUserCount(prevFromDateTime, prevToDateTime);
-            RevenueData prevRevenue = getRevenueData(prevFromDateTime, prevToDateTime);
-            Long prevReviews = getReviewCount(prevFromDateTime, prevToDateTime); // NEW
+            RevenueData prevRevenue = getRevenueData(prevFromDate, prevToDate); // FIXED: Use LocalDate
+            Long prevReviews = getReviewCount(prevFromDateTime, prevToDateTime);
+
+            // Get current period user count for growth calculation
+            Long currentUsers = getUserCount(request.fromDate().atStartOfDay(), request.toDate().atTime(23, 59, 59));
 
             // Calculate growth rates
-            Long currentUsers = getUserCount(request.fromDate().atStartOfDay(), request.toDate().atTime(23, 59, 59));
             Double userGrowthRate = calculateGrowthRate(currentUsers, prevUsers);
             Double revenueGrowthRate = calculateGrowthRate(currentRevenue, prevRevenue.totalRevenue());
-            Double reviewGrowthRate = calculateGrowthRate(currentReviews, prevReviews); // NEW
+            Double reviewGrowthRate = calculateGrowthRate(currentReviews, prevReviews);
+
+            log.debug("Growth rates calculated - Users: {}%, Revenue: {}%, Reviews: {}%",
+                    userGrowthRate, revenueGrowthRate, reviewGrowthRate);
 
             return GrowthMetrics.builder()
                     .userGrowthRate(userGrowthRate)
@@ -184,14 +234,33 @@ public class AdminDashboardService implements IAdminDashboardService {
     }
 
     private Double calculateGrowthRate(Number current, Number previous) {
-        if (previous == null || previous.doubleValue() == 0) return 0.0;
-        return ((current.doubleValue() - previous.doubleValue()) / previous.doubleValue()) * 100;
+        if (previous == null || current == null) {
+            log.debug("Null values in growth calculation - current: {}, previous: {}", current, previous);
+            return 0.0;
+        }
+
+        double prevValue = previous.doubleValue();
+        double currValue = current.doubleValue();
+
+        if (prevValue == 0) {
+            return currValue > 0 ? 100.0 : 0.0; // 100% growth if previous was 0 and current > 0
+        }
+
+        return ((currValue - prevValue) / prevValue) * 100;
     }
 
     private Double calculateGrowthRate(BigDecimal current, BigDecimal previous) {
-        if (previous == null || previous.compareTo(BigDecimal.ZERO) == 0) return 0.0;
+        if (previous == null || current == null) {
+            log.debug("Null BigDecimal values in growth calculation - current: {}, previous: {}", current, previous);
+            return 0.0;
+        }
+
+        if (previous.compareTo(BigDecimal.ZERO) == 0) {
+            return current.compareTo(BigDecimal.ZERO) > 0 ? 100.0 : 0.0;
+        }
+
         return current.subtract(previous)
-                .divide(previous, 4, BigDecimal.ROUND_HALF_UP)
+                .divide(previous, 4, RoundingMode.HALF_UP)
                 .multiply(new BigDecimal("100"))
                 .doubleValue();
     }

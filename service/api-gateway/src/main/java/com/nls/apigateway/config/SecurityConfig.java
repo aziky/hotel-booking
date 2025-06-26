@@ -51,7 +51,6 @@ public class SecurityConfig {
             BOOKING_PREFIX + "/property/{propertyId}",
             PAYMENT_PREFIX + "/payment/IPN/vnpay",
             PAYMENT_PREFIX + "/payment/IPN/payos",
-            BOOKING_PREFIX + "/admin/dashboard",
             USER_PREFIX + "/review/property/{propertyId}",
     };
 
@@ -63,13 +62,15 @@ public class SecurityConfig {
             USER_PREFIX + "/user/change-role",
             BOOKING_PREFIX + "/booking/my-bookings",
             USER_PREFIX + "/user/profile",
-
     };
     private static final String[] HOST_ENDPOINT = {
             BOOKING_PREFIX + "/property/add",  //test
             BOOKING_PREFIX + "/property/update"
     };
-
+    private static final String[] ADMIN_ENDPOINT = {
+            BOOKING_PREFIX + "/admin/dashboard",
+            PAYMENT_PREFIX + "/payment/revenue"
+    };
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
@@ -78,6 +79,7 @@ public class SecurityConfig {
                         .pathMatchers(PUBLIC_ENDPOINT).permitAll()
                         .pathMatchers(USER_ENDPOINT).hasAuthority(Role.USER.name())
                         .pathMatchers(HOST_ENDPOINT).hasAuthority(Role.HOST.name())
+                        .pathMatchers(ADMIN_ENDPOINT).hasAuthority(Role.ADMIN.name())
                         .anyExchange().authenticated()
                 )
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)

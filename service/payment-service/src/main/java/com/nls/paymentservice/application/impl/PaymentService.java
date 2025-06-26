@@ -39,7 +39,9 @@ import vn.payos.type.PaymentData;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -259,21 +261,23 @@ public class PaymentService implements IPaymentService {
 
             // Validation
             if (fromDate == null || toDate == null) {
-                log.warn("Date parameters are null - fromDate: {}, toDate: {}", fromDate, toDate);
                 return ApiResponse.badRequest("From date and to date cannot be null");
             }
 
             if (fromDate.isAfter(toDate)) {
-                log.warn("Invalid date range - fromDate: {} is after toDate: {}", fromDate, toDate);
                 return ApiResponse.badRequest("From date cannot be after to date");
             }
 
-            // Calculate revenue metrics
-            BigDecimal totalRevenue = paymentRepository.getTotalRevenueInDateRange(fromDate, toDate);
-            BigDecimal completedPayments = paymentRepository.getCompletedPaymentsInDateRange(fromDate, toDate);
-            BigDecimal pendingPayments = paymentRepository.getPendingPaymentsInDateRange(fromDate, toDate);
+            // Convert LocalDateTime to Instant
+            Instant fromInstant = fromDate.atZone(ZoneId.systemDefault()).toInstant();
+            Instant toInstant = toDate.atZone(ZoneId.systemDefault()).toInstant();
 
-            // Handle null values (no payments in date range)
+            // Calculate revenue metrics using Instant
+            BigDecimal totalRevenue = paymentRepository.getTotalRevenueInDateRange(fromInstant, toInstant);
+            BigDecimal completedPayments = paymentRepository.getCompletedPaymentsInDateRange(fromInstant, toInstant);
+            BigDecimal pendingPayments = paymentRepository.getPendingPaymentsInDateRange(fromInstant, toInstant);
+
+            // Handle null values
             if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
             if (completedPayments == null) completedPayments = BigDecimal.ZERO;
             if (pendingPayments == null) pendingPayments = BigDecimal.ZERO;
