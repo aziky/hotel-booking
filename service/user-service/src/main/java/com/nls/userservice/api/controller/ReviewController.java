@@ -37,7 +37,7 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/api/admin/reviews/count")
+    @GetMapping("/admin/reviews/count")
     public ResponseEntity<ApiResponse<Long>> getReviewCount(
             @RequestParam LocalDateTime fromDate,
             @RequestParam LocalDateTime toDate) {
