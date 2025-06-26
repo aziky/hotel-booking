@@ -1,3 +1,4 @@
+
 package com.nls.paymentservice.api.controller;
 
 import com.nls.common.dto.request.CreatePaymentReq;
@@ -5,14 +6,17 @@ import com.nls.common.dto.response.ApiResponse;
 import com.nls.common.dto.response.CreatePaymentRes;
 import com.nls.common.dto.response.PaymentRes;
 import com.nls.paymentservice.api.dto.response.PayOSRes;
+import com.nls.paymentservice.api.dto.response.RevenueData; // Add this import
 import com.nls.paymentservice.application.IPaymentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,6 +44,7 @@ public class PaymentController {
     public String handleVnpayOS(@ModelAttribute PayOSRes payOSRes) {
         return "redirect:" + paymentService.handlePayOSResponse(payOSRes);
     }
+
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<ApiResponse<PaymentRes>> getPaymentByBookingId(@PathVariable UUID bookingId) {
         return ResponseEntity.ok(paymentService.getPaymentByBookingId(bookingId));
@@ -48,5 +53,15 @@ public class PaymentController {
     @PostMapping("/bookings/batch")
     public ResponseEntity<ApiResponse<List<PaymentRes>>> getPaymentsByBookingIds(@RequestBody List<UUID> bookingIds) {
         return ResponseEntity.ok(paymentService.getPaymentsByBookingIds(bookingIds));
+    }
+
+    @GetMapping("/revenue")
+    public ResponseEntity<ApiResponse<RevenueData>> getRevenueData(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toDate) {
+
+        log.info("Request to get revenue data from {} to {}", fromDate, toDate);
+        ApiResponse<RevenueData> response = paymentService.getRevenueData(fromDate, toDate);
+        return ResponseEntity.ok(response);
     }
 }

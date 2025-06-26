@@ -10,6 +10,7 @@ import com.nls.common.enumration.PaymentStatus;
 import com.nls.common.enumration.QueueName;
 import com.nls.common.enumration.TypeEmail;
 import com.nls.paymentservice.api.dto.response.PayOSRes;
+import com.nls.paymentservice.api.dto.response.RevenueData;
 import com.nls.paymentservice.application.IPaymentService;
 import com.nls.paymentservice.application.IVnpayGateway;
 import com.nls.paymentservice.domain.entity.Payment;
@@ -36,7 +37,9 @@ import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.PaymentData;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -248,5 +251,47 @@ public class PaymentService implements IPaymentService {
                 .paymentStatus(payment.getPaymentStatus())
                 .orderCode(payment.getOrderCode())
                 .build();
+    }
+    @Override
+    public ApiResponse<RevenueData> getRevenueData(LocalDateTime fromDate, LocalDateTime toDate) {
+        try {
+            log.info("Getting revenue data from {} to {}", fromDate, toDate);
+
+            // Validation
+            if (fromDate == null || toDate == null) {
+                log.warn("Date parameters are null - fromDate: {}, toDate: {}", fromDate, toDate);
+                return ApiResponse.badRequest("From date and to date cannot be null");
+            }
+
+            if (fromDate.isAfter(toDate)) {
+                log.warn("Invalid date range - fromDate: {} is after toDate: {}", fromDate, toDate);
+                return ApiResponse.badRequest("From date cannot be after to date");
+            }
+
+            // Calculate revenue metrics
+            BigDecimal totalRevenue = paymentRepository.getTotalRevenueInDateRange(fromDate, toDate);
+            BigDecimal completedPayments = paymentRepository.getCompletedPaymentsInDateRange(fromDate, toDate);
+            BigDecimal pendingPayments = paymentRepository.getPendingPaymentsInDateRange(fromDate, toDate);
+
+            // Handle null values (no payments in date range)
+            if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
+            if (completedPayments == null) completedPayments = BigDecimal.ZERO;
+            if (pendingPayments == null) pendingPayments = BigDecimal.ZERO;
+
+            RevenueData revenueData = RevenueData.builder()
+                    .totalRevenue(totalRevenue)
+                    .completedPayments(completedPayments)
+                    .pendingPayments(pendingPayments)
+                    .build();
+
+            log.info("Revenue data calculated - Total: {}, Completed: {}, Pending: {}",
+                    totalRevenue, completedPayments, pendingPayments);
+
+            return ApiResponse.ok(revenueData);
+
+        } catch (Exception e) {
+            log.error("Error getting revenue data from {} to {}: {}", fromDate, toDate, e.getMessage(), e);
+            return ApiResponse.internalError();
+        }
     }
 }
