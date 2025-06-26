@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -27,4 +28,10 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     Long countBookingsByStatusInDateRange(@Param("status") String status,
                                           @Param("fromDate") LocalDateTime fromDate,
                                           @Param("toDate") LocalDateTime toDate);
+
+    Optional<Booking> findTopByUserIdAndPropertyIdAndBookingStatusOrderByCheckOutDateDesc(
+            UUID userId,
+            UUID propertyId,
+            String bookingStatus
+    );
 }

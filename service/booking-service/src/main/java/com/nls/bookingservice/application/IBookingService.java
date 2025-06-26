@@ -16,4 +16,7 @@ public interface IBookingService {
     ApiResponse<BookingDetailsRes> updateBookingById(UUID bookingId);
 
     ApiResponse<List<UserBookingRes>> getUserBookings();
+
+    ApiResponse<BookingDetailsRes> checkBooking(UUID userId, UUID propertyId, String bookingStatus);
+
 }

@@ -16,6 +16,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @EnableWebFluxSecurity
 @Slf4j
@@ -90,8 +92,10 @@ public class SecurityConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowCredentials(true);
-        corsConfig.addAllowedOrigin(webUrlProperties.host());
-        corsConfig.addAllowedOrigin("http://localhost:8050");
+        corsConfig.setAllowedOrigins(List.of(
+                webUrlProperties.host(),
+                "http://localhost:8050"
+        ));
         corsConfig.addAllowedHeader("*");
         corsConfig.addAllowedMethod("*");
 

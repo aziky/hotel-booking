@@ -1,5 +1,6 @@
 package com.nls.userservice.application;
 
+import com.nls.userservice.api.dto.request.CreateReviewReq;
 import com.nls.userservice.domain.entity.Review;
 import com.nls.common.dto.response.ApiResponse;
 
@@ -14,4 +15,7 @@ public interface IReviewService {
     ApiResponse<Double> getAverageRatingByPropertyId(UUID propertyId);
 
     ApiResponse<Long> getReviewCount(LocalDateTime fromDate, LocalDateTime toDate);
+
+    ApiResponse<Void> addReview(CreateReviewReq request);
+
 }

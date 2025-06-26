@@ -15,6 +15,7 @@ import com.nls.common.dto.response.BookingDetailsRes;
 import com.nls.common.dto.response.CreatePaymentRes;
 import com.nls.common.dto.response.PaymentRes;
 import com.nls.common.enumration.BookingStatus;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -121,9 +122,21 @@ public class BookingService implements IBookingService {
         }
     }
 
+    @Override
+    public ApiResponse<BookingDetailsRes> checkBooking(UUID userId, UUID propertyId, String bookingStatus) {
+        log.info("Start handle check booking for userId {} and propertyId {}", userId, propertyId);
+        Booking booking = bookingRepository
+                .findTopByUserIdAndPropertyIdAndBookingStatusOrderByCheckOutDateDesc(userId, propertyId, bookingStatus)
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+
+        BookingDetailsRes bookingDetailsRes = bookingMapper.convertBookingToBookingDetailsRes(booking);
+        log.info("Converted booking to BookingDetailsRes: {}", bookingDetailsRes);
+        return ApiResponse.ok(bookingDetailsRes, "Booking details fetched successfully");
+    }
+
     private Map<UUID, PaymentRes> fetchPayments(List<UUID> bookingIds) {
         try {
-            log.info("Fetching payments for {} bookings", bookingIds.size());
+            log.info("Fetching payments for {} bookinbgs", bookingIds.size());
             ApiResponse<List<PaymentRes>> paymentResponse = paymentClient.getPaymentsByBookingIds(bookingIds);
 
             if (paymentResponse.code() == 200 && paymentResponse.data() != null) {

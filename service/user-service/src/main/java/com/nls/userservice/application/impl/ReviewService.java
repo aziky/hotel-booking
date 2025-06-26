@@ -1,14 +1,22 @@
 package com.nls.userservice.application.impl;
 
+import com.nls.common.dto.response.BookingDetailsRes;
+import com.nls.common.enumration.BookingStatus;
+import com.nls.userservice.api.dto.request.CreateReviewReq;
 import com.nls.userservice.application.IReviewService;
 import com.nls.userservice.domain.entity.Review;
 import com.nls.userservice.domain.repository.ReviewRepository;
 import com.nls.common.dto.response.ApiResponse;
+import com.nls.userservice.infrastructure.external.client.BookingClient;
+import com.nls.userservice.shared.mapper.ReviewMapper;
+import com.nls.userservice.shared.utils.SecurityUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +29,8 @@ import java.util.UUID;
 public class ReviewService implements IReviewService {
 
     ReviewRepository reviewRepository;
+    ReviewMapper reviewMapper;
+    BookingClient bookingClient;
 
     @Override
     public ApiResponse<List<Review>> getReviewsByPropertyId(UUID propertyId) {
@@ -75,5 +85,33 @@ public class ReviewService implements IReviewService {
             log.error("Error getting review count from {} to {}: {}", fromDate, toDate, e.getMessage(), e);
             return ApiResponse.internalError();
         }
+    }
+
+    @Transactional
+    @Override
+    public ApiResponse<Void> addReview(CreateReviewReq request) {
+        log.info("Star handling addReview for property: {}", request);
+        Review review = reviewMapper.convertToReview(request);
+
+        if (review.getRating() < 1 || review.getRating() > 5) {
+            log.error("Invalid rating value: {}", review.getRating());
+            return ApiResponse.badRequest("Rating must be between 1 and 5");
+        }
+        UUID userId = SecurityUtil.getCurrentUserId();
+
+        ApiResponse<BookingDetailsRes> response = bookingClient.checkBooking(userId, request.propertyId(), BookingStatus.PAID.name());
+        log.info("Booking check response: {}", response);
+        if (response.code() == HttpStatus.NOT_FOUND.value()) {
+            return ApiResponse.badRequest("You must have a paid booking to leave a review");
+        }
+
+        BookingDetailsRes bookingDetailsRes = response.data();
+
+        review.setId(userId);
+        review.setBookingId(bookingDetailsRes.bookingId());
+
+        reviewRepository.save(review);
+        log.info("Create review successfully: {}", review);
+        return ApiResponse.created();
     }
 }

@@ -36,4 +36,9 @@ public class BookingController {
     public ResponseEntity<ApiResponse<List<UserBookingRes>>> getUserBookings() {
         return ResponseEntity.ok(bookingService.getUserBookings());
     }
+
+    @GetMapping("/check")
+    public ApiResponse<BookingDetailsRes> checkBooking(@RequestParam UUID userId, @RequestParam UUID propertyId, @RequestParam String bookingStatus) {
+        return bookingService.checkBooking(userId, propertyId, bookingStatus);
+    }
 }
