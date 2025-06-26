@@ -17,7 +17,6 @@ public class UserBookingRes {
     private String roomType;
     private String address;
     private int maxGuests;
-    private
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private Integer guestsCount;
