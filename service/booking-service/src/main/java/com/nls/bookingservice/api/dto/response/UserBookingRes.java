@@ -13,6 +13,11 @@ import java.util.UUID;
 public class UserBookingRes {
     private UUID id;
     private UUID propertyId;
+    private String propertyName;
+    private String roomType;
+    private String address;
+    private int maxGuests;
+    private
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
     private Integer guestsCount;
@@ -29,4 +34,6 @@ public class UserBookingRes {
     private String paymentMethod;
     private String paymentStatus;
     private BigDecimal paymentAmount;
+
+
 }

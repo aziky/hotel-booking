@@ -155,7 +155,9 @@ public class BookingService implements IBookingService {
                 .totalAmount(booking.getTotalAmount())
                 .expiresAt(booking.getExpiresAt())
                 .bookingStatus(booking.getBookingStatus())
-                .specialRequests(booking.getSpecialRequests());
+                .specialRequests(booking.getSpecialRequests())
+
+                ;
 
         // Add payment details if available
         if (payment != null) {

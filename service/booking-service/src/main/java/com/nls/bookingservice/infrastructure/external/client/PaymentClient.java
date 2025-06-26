@@ -21,15 +21,15 @@ public interface PaymentClient {
     ApiResponse<CreatePaymentRes> createPayment(CreatePaymentReq request);
 
 
-    @GetMapping(BASE + "/payment/booking/{bookingId}")
+    @GetMapping(BASE + "/booking/{bookingId}")
     ApiResponse<PaymentRes> getPaymentByBookingId(@PathVariable UUID bookingId);
 
 
-    @PostMapping(BASE + "/payment/bookings/batch")
+    @PostMapping(BASE + "/bookings/batch")
     ApiResponse<List<PaymentRes>> getPaymentsByBookingIds(@RequestBody List<UUID> bookingIds);
 
 
-    @GetMapping(BASE + "/api/admin/payments/revenue")
+    @GetMapping("/api/admin/payments/revenue")
     ApiResponse<RevenueData> getRevenueData(@RequestParam LocalDateTime fromDate,
                                             @RequestParam LocalDateTime toDate);
 }
