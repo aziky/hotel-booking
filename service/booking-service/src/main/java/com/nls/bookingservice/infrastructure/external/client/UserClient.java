@@ -20,4 +20,9 @@ public interface UserClient {
     @GetMapping("/api/admin/users/count")
     ApiResponse<Long> getNewUserCount(@RequestParam LocalDateTime fromDate,
                                       @RequestParam LocalDateTime toDate);
+
+    // Get review count in date range
+    @GetMapping("/api/admin/reviews/count")
+    ApiResponse<Long> getReviewCount(@RequestParam LocalDateTime fromDate,
+                                     @RequestParam LocalDateTime toDate);
 }

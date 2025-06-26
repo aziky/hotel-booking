@@ -12,7 +12,7 @@ public record AdminDashboardRes(
         Long totalProperties,
         Long newUsers,
         Long totalHosts,
-
+        Long totalReviews,
         // Revenue
         BigDecimal totalRevenue,
         BigDecimal completedPayments,
