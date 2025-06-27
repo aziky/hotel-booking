@@ -1,6 +1,7 @@
 package com.nls.common.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nls.common.enumration.Role;
 import lombok.Builder;
 import lombok.With;
 
@@ -17,7 +18,8 @@ public record UserRes(
         @JsonFormat(pattern = "dd-MM-yyyy")
         LocalDate dateOfBirth,
         String gender,
-        String token
+        String token,
+        String role
 ) {
 
 }
