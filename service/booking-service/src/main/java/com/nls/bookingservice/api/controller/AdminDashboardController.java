@@ -16,7 +16,7 @@ import jakarta.validation.Valid;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/admin/dashboard")
+@RequestMapping("/admin/dashboard")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Admin Dashboard", description = "Admin dashboard statistics")
