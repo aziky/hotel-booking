@@ -100,14 +100,11 @@ public class ReviewService implements IReviewService {
         UUID userId = SecurityUtil.getCurrentUserId();
 
         ApiResponse<BookingDetailsRes> response = bookingClient.checkBooking(userId, request.propertyId(), BookingStatus.PAID.name());
-        log.info("Booking check response: {}", response);
-        if (response.code() == HttpStatus.NOT_FOUND.value()) {
-            return ApiResponse.badRequest("You must have a paid booking to leave a review");
-        }
-
         BookingDetailsRes bookingDetailsRes = response.data();
+        log.info("Booking details retrieved: {}", bookingDetailsRes);
 
-        review.setId(userId);
+        review.setUserId(userId);
+        review.setHostId(bookingDetailsRes.hostId());
         review.setBookingId(bookingDetailsRes.bookingId());
 
         reviewRepository.save(review);

@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleEntityNotFound(EntityNotFoundException ex) {
         log.error("Entity not found: {}", ex.getMessage());
-        return ResponseEntity.status(404).body(ApiResponse.notFound("Resource not found", null));
+        return ResponseEntity.status(404).body(ApiResponse.notFound(ex.getMessage(), null));
     }
 
     // 2. Validation Errors (e.g., @Valid failed)

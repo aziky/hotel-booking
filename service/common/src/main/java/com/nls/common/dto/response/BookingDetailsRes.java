@@ -13,6 +13,7 @@ import java.util.UUID;
 public record BookingDetailsRes (
         UUID bookingId,
         UUID userId,
+        UUID hostId,
         String customerName,
         String customerEmail,
         String roomType,
