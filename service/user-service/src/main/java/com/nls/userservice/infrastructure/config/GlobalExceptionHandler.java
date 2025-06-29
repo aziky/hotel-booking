@@ -1,8 +1,10 @@
 package com.nls.userservice.infrastructure.config;
 
 import com.nls.common.dto.response.ApiResponse;
+import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -60,6 +62,20 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception: ", ex);
         return ResponseEntity.status(500).body(ApiResponse.internalError());
     }
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<ApiResponse<Object>> handleGenericFeignException(FeignException ex) {
+        log.error("Feign exception occurred: {}", ex.getMessage());
+        if (ex instanceof FeignException.BadRequest) {
+            return ResponseEntity.badRequest().body(ApiResponse.badRequest("Invalid request"));
+        }
+        if (ex instanceof FeignException.NotFound) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.notFound("Resource not found", null));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.internalError());
+    }
+
 
 
 }

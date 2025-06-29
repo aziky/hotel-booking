@@ -17,6 +17,7 @@ public interface BookingMapper {
 
     @Mapping(target = "bookingId", source = "id")
     @Mapping(target = "roomType", source = "property.roomType")
+    @Mapping(target = "hostId", source = "property.hostId")
     BookingDetailsRes convertBookingToBookingDetailsRes(Booking request);
 
 }
