@@ -64,6 +64,7 @@ public class SecurityConfig {
             USER_PREFIX + "/user/change-role",
             BOOKING_PREFIX + "/booking/my-bookings",
             USER_PREFIX + "/user/profile",
+            USER_PREFIX + "/review"
     };
     private static final String[] HOST_ENDPOINT = {
             BOOKING_PREFIX + "/property/add",  //test
