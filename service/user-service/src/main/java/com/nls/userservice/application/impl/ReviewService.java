@@ -3,6 +3,7 @@ package com.nls.userservice.application.impl;
 import com.nls.common.dto.response.BookingDetailsRes;
 import com.nls.common.enumration.BookingStatus;
 import com.nls.userservice.api.dto.request.CreateReviewReq;
+import com.nls.userservice.api.dto.response.GetReviewRes;
 import com.nls.userservice.application.IReviewService;
 import com.nls.userservice.domain.entity.Review;
 import com.nls.userservice.domain.repository.ReviewRepository;
@@ -18,7 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,14 +36,15 @@ public class ReviewService implements IReviewService {
     BookingClient bookingClient;
 
     @Override
-    public ApiResponse<List<Review>> getReviewsByPropertyId(UUID propertyId) {
+    public ApiResponse<List<GetReviewRes>> getReviewsByPropertyId(UUID propertyId) {
         try {
             log.info("Getting reviews for property: {}", propertyId);
 
             List<Review> reviews = reviewRepository.findByPropertyId(propertyId);
+            List<GetReviewRes> response =  reviews.stream().map(reviewMapper::convertToGetReviewRes).toList();
 
-            log.info("Found {} reviews for property: {}", reviews.size(), propertyId);
-            return ApiResponse.ok(reviews);
+            log.info("Found {} reviews for property: {}", response.size(), propertyId);
+            return ApiResponse.ok(response);
 
         } catch (Exception e) {
             log.error("Error getting reviews for property {}: {}", propertyId, e.getMessage(), e);
@@ -72,11 +76,11 @@ public class ReviewService implements IReviewService {
     }
 
     @Override
-    public ApiResponse<Long> getReviewCount(LocalDateTime fromDate, LocalDateTime toDate) {
+    public ApiResponse<Long> getReviewCount(LocalDate fromDate, LocalDate toDate) {
         try {
             log.info("Getting review count from {} to {}", fromDate, toDate);
 
-            Long reviewCount = reviewRepository.countByCreatedAtBetween(fromDate, toDate);
+            Long reviewCount = reviewRepository.countByCreatedAtBetween(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX));
 
             log.info("Found {} reviews in date range", reviewCount);
             return ApiResponse.ok(reviewCount);

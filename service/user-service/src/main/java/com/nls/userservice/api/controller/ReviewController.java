@@ -2,6 +2,7 @@ package com.nls.userservice.api.controller;
 
 import com.nls.common.dto.response.ApiResponse;
 import com.nls.userservice.api.dto.request.CreateReviewReq;
+import com.nls.userservice.api.dto.response.GetReviewRes;
 import com.nls.userservice.application.IReviewService;
 import com.nls.userservice.domain.entity.Review;
 import lombok.AccessLevel;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +27,9 @@ public class ReviewController {
     IReviewService reviewService;
 
     @GetMapping("/property/{propertyId}")
-    public ResponseEntity<ApiResponse<List<Review>>> getReviewsByPropertyId(@PathVariable UUID propertyId) {
+    public ResponseEntity<ApiResponse<List<GetReviewRes>>> getReviewsByPropertyId(@PathVariable UUID propertyId) {
         log.info("Request to get reviews for property: {}", propertyId);
-        ApiResponse<List<Review>> response = reviewService.getReviewsByPropertyId(propertyId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(reviewService.getReviewsByPropertyId(propertyId));
     }
 
     @GetMapping("/property/{propertyId}/rating")
@@ -40,8 +41,8 @@ public class ReviewController {
 
     @GetMapping("/admin/reviews/count")
     public ResponseEntity<ApiResponse<Long>> getReviewCount(
-            @RequestParam LocalDateTime fromDate,
-            @RequestParam LocalDateTime toDate) {
+            @RequestParam LocalDate fromDate,
+            @RequestParam LocalDate toDate) {
 
         log.info("Request to get review count from {} to {}", fromDate, toDate);
         ApiResponse<Long> response = reviewService.getReviewCount(fromDate, toDate);
