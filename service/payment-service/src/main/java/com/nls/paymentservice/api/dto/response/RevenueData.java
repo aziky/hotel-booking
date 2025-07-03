@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 @Builder
 public record RevenueData(
         BigDecimal totalRevenue,
-        BigDecimal completedPayments,
-        BigDecimal pendingPayments
+        Long completedPayments,
+        Long pendingPayments
 ) {
 }

@@ -272,24 +272,29 @@ public class PaymentService implements IPaymentService {
             Instant fromInstant = fromDate.atZone(ZoneId.systemDefault()).toInstant();
             Instant toInstant = toDate.atZone(ZoneId.systemDefault()).toInstant();
 
-            // Calculate revenue metrics using Instant
+            log.debug("Converted to Instants - From: {}, To: {}", fromInstant, toInstant);
+
+            // Calculate metrics
             BigDecimal totalRevenue = paymentRepository.getTotalRevenueInDateRange(fromInstant, toInstant);
-            BigDecimal completedPayments = paymentRepository.getCompletedPaymentsInDateRange(fromInstant, toInstant);
-            BigDecimal pendingPayments = paymentRepository.getPendingPaymentsInDateRange(fromInstant, toInstant);
+            Long completedPaymentCount = paymentRepository.getCompletedPaymentCountInDateRange(fromInstant, toInstant);
+            Long pendingPaymentCount = paymentRepository.getPendingPaymentCountInDateRange(fromInstant, toInstant);
+
+            log.debug("Raw query results - Total Revenue: {}, Completed Count: {}, Pending Count: {}",
+                    totalRevenue, completedPaymentCount, pendingPaymentCount);
 
             // Handle null values
             if (totalRevenue == null) totalRevenue = BigDecimal.ZERO;
-            if (completedPayments == null) completedPayments = BigDecimal.ZERO;
-            if (pendingPayments == null) pendingPayments = BigDecimal.ZERO;
+            if (completedPaymentCount == null) completedPaymentCount = 0L;
+            if (pendingPaymentCount == null) pendingPaymentCount = 0L;
 
             RevenueData revenueData = RevenueData.builder()
                     .totalRevenue(totalRevenue)
-                    .completedPayments(completedPayments)
-                    .pendingPayments(pendingPayments)
+                    .completedPayments(completedPaymentCount)  // Now count of transactions
+                    .pendingPayments(pendingPaymentCount)      // Now count of transactions
                     .build();
 
-            log.info("Revenue data calculated - Total: {}, Completed: {}, Pending: {}",
-                    totalRevenue, completedPayments, pendingPayments);
+            log.info("Revenue data calculated - Total Revenue: {}, Completed Transactions: {}, Pending Transactions: {}",
+                    totalRevenue, completedPaymentCount, pendingPaymentCount);
 
             return ApiResponse.ok(revenueData);
 
