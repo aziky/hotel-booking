@@ -1,5 +1,6 @@
 package com.nls.userservice.application.impl;
 
+import com.nls.common.dto.response.ApiResponse;
 import com.nls.common.dto.response.BookingDetailsRes;
 import com.nls.common.enumration.BookingStatus;
 import com.nls.userservice.api.dto.request.CreateReviewReq;
@@ -7,7 +8,6 @@ import com.nls.userservice.api.dto.response.GetReviewRes;
 import com.nls.userservice.application.IReviewService;
 import com.nls.userservice.domain.entity.Review;
 import com.nls.userservice.domain.repository.ReviewRepository;
-import com.nls.common.dto.response.ApiResponse;
 import com.nls.userservice.infrastructure.external.client.BookingClient;
 import com.nls.userservice.shared.mapper.ReviewMapper;
 import com.nls.userservice.shared.utils.SecurityUtil;
@@ -15,12 +15,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
@@ -114,5 +112,17 @@ public class ReviewService implements IReviewService {
         reviewRepository.save(review);
         log.info("Create review successfully: {}", review);
         return ApiResponse.created();
+    }
+
+    @Override
+    public ApiResponse<List<GetReviewRes>> getAllReview() {
+        log.info("Start get all the review from the database");
+
+        List<Review> reviews = reviewRepository.findAll();
+        List<GetReviewRes> response = reviews.stream()
+                .map(reviewMapper::convertToGetReviewRes)
+                .toList();
+
+        return ApiResponse.ok(response, "Successfully retrieved all reviews");
     }
 }

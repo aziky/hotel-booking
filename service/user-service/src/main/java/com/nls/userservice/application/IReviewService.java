@@ -20,4 +20,6 @@ public interface IReviewService {
 
     ApiResponse<Void> addReview(CreateReviewReq request);
 
+    ApiResponse<List<GetReviewRes>> getAllReview();
+
 }

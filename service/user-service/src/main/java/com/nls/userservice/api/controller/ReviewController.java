@@ -49,9 +49,13 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
-
     @PostMapping()
     public ApiResponse<Void> createReview(@RequestBody CreateReviewReq request) {
         return reviewService.addReview(request);
+    }
+
+    @GetMapping()
+    public ApiResponse<List<GetReviewRes>> getAllReviews() {
+        return reviewService.getAllReview();
     }
 }

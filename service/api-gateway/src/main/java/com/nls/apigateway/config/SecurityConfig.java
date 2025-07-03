@@ -83,6 +83,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
                         .pathMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .pathMatchers(HttpMethod.GET, USER_PREFIX + "/review").permitAll()
                         .pathMatchers(USER_ENDPOINT).hasAuthority(Role.USER.name())
                         .pathMatchers(HOST_ENDPOINT).hasAuthority(Role.HOST.name())
                         .pathMatchers(ADMIN_ENDPOINT).hasAuthority(Role.ADMIN.name())
