@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -291,5 +292,46 @@ public class UserService implements IUserService {
             return ApiResponse.internalError();
         }
     }
+    @Override
+    public ApiResponse<Long> countUsersByRole(String role) {
+        try {
+            log.info("Counting users with role: {}", role);
 
+            // Validate role
+            if (role == null || role.trim().isEmpty()) {
+                log.warn("Invalid role provided: {}", role);
+                return ApiResponse.badRequest("Role cannot be null or empty");
+            }
+
+            // Validate that it's a valid role
+            try {
+                Role.valueOf(role.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid role value: {}", role);
+                return ApiResponse.badRequest("Invalid role. Valid roles are: USER, HOST, ADMIN");
+            }
+
+            Long userCount = userRepository.countByRole(role.toUpperCase());
+
+            log.info("Found {} users with role: {}", userCount, role);
+            return ApiResponse.ok(userCount);
+
+        } catch (Exception e) {
+            log.error("Error counting users by role {}: {}", role, e.getMessage(), e);
+            return ApiResponse.internalError();
+        }
+    }
+    @Override
+    public ApiResponse<List<UserRes>> getUsersByRole(String role) {
+        try {
+            List<User> users = userRepository.findByRole(role);
+            List<UserRes> userResList = users.stream()
+                    .map(userMapper::convertToUserRes)
+                    .toList();
+            return ApiResponse.ok(userResList);
+        } catch (Exception e) {
+            log.error("Error getting users by role {}: {}", role, e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
 }

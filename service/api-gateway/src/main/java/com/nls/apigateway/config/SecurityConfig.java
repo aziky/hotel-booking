@@ -72,7 +72,9 @@ public class SecurityConfig {
     };
     private static final String[] ADMIN_ENDPOINT = {
             BOOKING_PREFIX + "/admin/dashboard",
-            PAYMENT_PREFIX + "/payment/revenue"
+            PAYMENT_PREFIX + "/payment/revenue",
+            USER_PREFIX + "/count/users",
+            USER_PREFIX + "/user-list"
     };
 
     @Bean
