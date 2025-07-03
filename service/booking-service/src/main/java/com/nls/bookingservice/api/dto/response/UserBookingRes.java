@@ -28,7 +28,6 @@ public class UserBookingRes {
     private LocalDateTime expiresAt;
     private String bookingStatus;
     private String specialRequests;
-    private LocalDate createdAt;
 
     // Payment information from payment service
     private String paymentMethod;
