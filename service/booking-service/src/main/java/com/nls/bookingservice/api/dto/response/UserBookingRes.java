@@ -1,5 +1,6 @@
 package com.nls.bookingservice.api.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
@@ -28,6 +29,8 @@ public class UserBookingRes {
     private LocalDateTime expiresAt;
     private String bookingStatus;
     private String specialRequests;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime createdAt;
 
     // Payment information from payment service
     private String paymentMethod;
