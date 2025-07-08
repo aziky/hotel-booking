@@ -24,15 +24,15 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     // UPDATED: Revenue calculation methods using Instant instead of LocalDateTime
 
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.createdAt BETWEEN :fromDate AND :toDate")
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentStatus = 'PAID' AND p.createdAt BETWEEN :fromDate AND :toDate")
     BigDecimal getTotalRevenueInDateRange(@Param("fromDate") Instant fromDate,
                                           @Param("toDate") Instant toDate);
 
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentStatus = 'PAID' AND p.createdAt BETWEEN :fromDate AND :toDate")
-    BigDecimal getCompletedPaymentsInDateRange(@Param("fromDate") Instant fromDate,
-                                               @Param("toDate") Instant toDate);
-
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.paymentStatus = 'PENDING' AND p.createdAt BETWEEN :fromDate AND :toDate")
-    BigDecimal getPendingPaymentsInDateRange(@Param("fromDate") Instant fromDate,
+    @Query("SELECT COALESCE(COUNT(p), 0) FROM Payment p WHERE p.paymentStatus = 'PAID' AND p.createdAt BETWEEN :fromDate AND :toDate")
+    Long getCompletedPaymentCountInDateRange(@Param("fromDate") Instant fromDate,
                                              @Param("toDate") Instant toDate);
+
+    @Query("SELECT COALESCE(COUNT(p), 0) FROM Payment p WHERE p.paymentStatus = 'PENDING' AND p.createdAt BETWEEN :fromDate AND :toDate")
+    Long getPendingPaymentCountInDateRange(@Param("fromDate") Instant fromDate,
+                                           @Param("toDate") Instant toDate);
 }

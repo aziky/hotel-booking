@@ -5,6 +5,7 @@ import com.nls.userservice.api.dto.request.*;
 import com.nls.common.dto.response.UserRes;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface IUserService {
@@ -24,4 +25,6 @@ public interface IUserService {
     ApiResponse<UserRes> resetPassword(ResetPasswordReq request);
 
     ApiResponse<UserRes> changeUserRole();
+    ApiResponse<Long> countUsersByRole(String role);
+    ApiResponse<List<UserRes>> getUsersByRole(String role);
 }

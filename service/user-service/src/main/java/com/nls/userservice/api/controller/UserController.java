@@ -7,6 +7,7 @@ import com.nls.userservice.api.dto.request.ResetPasswordReq;
 import com.nls.userservice.api.dto.request.UpdateUserReq;
 import com.nls.common.dto.response.UserRes;
 import com.nls.userservice.application.IUserService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -51,5 +53,15 @@ public class UserController {
     @PostMapping("/change-role")
     public ResponseEntity<ApiResponse<UserRes>> changeUserRole() {
         return ResponseEntity.ok(userService.changeUserRole());
+    }
+    @GetMapping("/count/users")
+    @Operation(summary = "Count users with USER role", description = "Get the number of users with USER role")
+    public ResponseEntity<ApiResponse<Long>> countUsers() {
+        ApiResponse<Long> response = userService.countUsersByRole("USER");
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/user-list")
+    public ResponseEntity<ApiResponse<List<UserRes>>> getUsers() {
+        return ResponseEntity.ok(userService.getUsersByRole("USER"));
     }
 }

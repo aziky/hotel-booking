@@ -158,6 +158,9 @@ public class BookingService implements IBookingService {
         UserBookingRes.UserBookingResBuilder builder = UserBookingRes.builder()
                 .id(booking.getId())
                 .propertyId(booking.getPropertyId())
+                .propertyName(booking.getProperty().getTitle())
+                .roomType(booking.getProperty().getRoomType())
+                .address(booking.getProperty().getAddress())
                 .checkInDate(booking.getCheckInDate())
                 .checkOutDate(booking.getCheckOutDate())
                 .guestsCount(booking.getGuestsCount())
@@ -169,7 +172,7 @@ public class BookingService implements IBookingService {
                 .expiresAt(booking.getExpiresAt())
                 .bookingStatus(booking.getBookingStatus())
                 .specialRequests(booking.getSpecialRequests())
-
+                .createdAt(booking.getCreatedAt())
                 ;
 
         // Add payment details if available

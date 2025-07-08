@@ -15,8 +15,8 @@ public record AdminDashboardRes(
         Long totalReviews,
         // Revenue
         BigDecimal totalRevenue,
-        BigDecimal completedPayments,
-        BigDecimal pendingPayments,
+        Long completedPayments,
+        Long pendingPayments,
 
         // Date range for context
         @JsonFormat(pattern = "yyyy-MM-dd")

@@ -162,8 +162,8 @@ public class AdminDashboardService implements IAdminDashboardService {
     private RevenueData createEmptyRevenueData() {
         return RevenueData.builder()
                 .totalRevenue(BigDecimal.ZERO)
-                .completedPayments(BigDecimal.ZERO)
-                .pendingPayments(BigDecimal.ZERO)
+                .completedPayments(0L)
+                .pendingPayments(0L)
                 .build();
     }
 
