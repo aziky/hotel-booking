@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,13 +38,13 @@ public class PaymentController {
     }
 
     @GetMapping("/IPN/vnpay")
-    public String handleVnpayIPN(@RequestParam Map<String, String> params) {
-        return "redirect:" + paymentService.handleVnpResponse(params);
+    public RedirectView handleVnpayIPN(@RequestParam Map<String, String> params) {
+        return new RedirectView("redirect:" + paymentService.handleVnpResponse(params));
     }
 
     @GetMapping("/IPN/payos")
-    public String handleVnpayOS(@ModelAttribute PayOSRes payOSRes) {
-        return "redirect:" + paymentService.handlePayOSResponse(payOSRes);
+    public RedirectView handleVnpayOS(@ModelAttribute PayOSRes payOSRes) {
+        return new RedirectView("redirect:" + paymentService.handlePayOSResponse(payOSRes));
     }
 
     @GetMapping("/booking/{bookingId}")
