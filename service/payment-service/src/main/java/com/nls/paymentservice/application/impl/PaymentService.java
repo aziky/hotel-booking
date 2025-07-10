@@ -139,7 +139,7 @@ public class PaymentService implements IPaymentService {
     @Override
     @Transactional
     public String handlePayOSResponse(PayOSRes payOSRes) {
-        log.info("Start handle payOS response with response: {}", payOSRes.toString());
+        log.info("Start handle payOS response with : {}", payOSRes.toString());
         Payment payment = paymentRepository.findByOrderCode(payOSRes.orderCode());
 
         if (payment == null) throw new RuntimeException("payment not found with " + payOSRes.orderCode());
