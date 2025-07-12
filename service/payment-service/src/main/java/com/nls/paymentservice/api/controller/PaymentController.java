@@ -39,12 +39,13 @@ public class PaymentController {
 
     @GetMapping("/IPN/vnpay")
     public RedirectView handleVnpayIPN(@RequestParam Map<String, String> params) {
-        return new RedirectView("redirect:" + paymentService.handleVnpResponse(params));
+        return new RedirectView(paymentService.handleVnpResponse(params));
     }
 
+    @CrossOrigin(origins = "https://pay.payos.vn")
     @GetMapping("/IPN/payos")
     public RedirectView handleVnpayOS(@ModelAttribute PayOSRes payOSRes) {
-        return new RedirectView("redirect:" + paymentService.handlePayOSResponse(payOSRes));
+        return new RedirectView(paymentService.handlePayOSResponse(payOSRes));
     }
 
     @GetMapping("/booking/{bookingId}")
