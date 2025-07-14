@@ -52,4 +52,11 @@ public class PropertyController {
     public ResponseEntity<ApiResponse<PropertyRes>> deleteProperty(@PathVariable UUID propertyId) {
         return ResponseEntity.ok(propertyService.deleteProperty(propertyId));
     }
+    @GetMapping("/my-properties")
+    public ResponseEntity<ApiResponse<PagedPropertyRes>> getMyProperties(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(propertyService.getMyProperties(pageable));
+    }
 }

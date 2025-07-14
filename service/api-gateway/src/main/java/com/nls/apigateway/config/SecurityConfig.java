@@ -68,7 +68,8 @@ public class SecurityConfig {
     };
     private static final String[] HOST_ENDPOINT = {
             BOOKING_PREFIX + "/property/add",  //test
-            BOOKING_PREFIX + "/property/update"
+            BOOKING_PREFIX + "/property/update",
+            BOOKING_PREFIX + "/property/my-properties",
     };
     private static final String[] ADMIN_ENDPOINT = {
             BOOKING_PREFIX + "/admin/dashboard",

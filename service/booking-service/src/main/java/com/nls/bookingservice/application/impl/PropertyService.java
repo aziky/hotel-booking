@@ -114,7 +114,7 @@ public class PropertyService implements IPropertyService {
             log.info("Start handle at get properties with page {} and size {}",
                     pageable.getPageNumber(), pageable.getPageSize());
 
-            Page<Property> propertyPage = propertyRepository.findAll(pageable);
+            Page<Property> propertyPage = propertyRepository.findByStatus(PropertyStatus.ACTIVE, pageable);;
 
             // Trigger lazy loading of day prices for current day price calculation
             propertyPage.getContent().forEach(property -> {
@@ -207,6 +207,32 @@ public class PropertyService implements IPropertyService {
             return ApiResponse.notFound(e.getMessage(), null);
         } catch (Exception e) {
             log.error("Error at delete property cause by {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
+    @Override
+    public ApiResponse<PagedPropertyRes> getMyProperties(Pageable pageable) {
+        try {
+            UUID currentUserId = SecurityUtil.getCurrentUserId();
+            log.info("Getting properties for host: {} with page {} and size {}",
+                    currentUserId, pageable.getPageNumber(), pageable.getPageSize());
+
+            Page<Property> propertyPage = propertyRepository.findByHostId(currentUserId, pageable);
+
+            // Trigger lazy loading of day prices
+            propertyPage.getContent().forEach(property -> {
+                if (property.getDayPrices() != null) {
+                    property.getDayPrices().size();
+                }
+            });
+
+            PagedPropertyRes pagedPropertyRes = propertyMapper.convertToPagedPropertyRes(propertyPage);
+
+            log.info("Found {} properties for host: {}", propertyPage.getTotalElements(), currentUserId);
+            return ApiResponse.ok(pagedPropertyRes);
+
+        } catch (Exception e) {
+            log.error("Error getting properties for current user: {}", e.getMessage());
             return ApiResponse.internalError();
         }
     }

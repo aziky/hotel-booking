@@ -21,4 +21,7 @@ public interface IPropertyService {
     ApiResponse<PropertyRes> updateProperty(UpdatePropertyReq request);
 
     ApiResponse<PropertyRes> deleteProperty(UUID propertyId);
+
+    ApiResponse<PagedPropertyRes> getMyProperties(Pageable pageable);
+
 }
