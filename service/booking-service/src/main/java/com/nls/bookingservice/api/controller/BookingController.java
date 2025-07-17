@@ -1,6 +1,7 @@
 package com.nls.bookingservice.api.controller;
 
 import com.nls.bookingservice.api.dto.request.CreateBookingReq;
+import com.nls.bookingservice.api.dto.response.BookingDetailRes;
 import com.nls.bookingservice.api.dto.response.CreateBookingRes;
 import com.nls.bookingservice.api.dto.response.UserBookingRes;
 import com.nls.bookingservice.application.IBookingService;
@@ -40,5 +41,9 @@ public class BookingController {
     @GetMapping("/check")
     public ApiResponse<BookingDetailsRes> checkBooking(@RequestParam UUID userId, @RequestParam UUID propertyId, @RequestParam String bookingStatus) {
         return bookingService.checkBooking(userId, propertyId, bookingStatus);
+    }
+    @GetMapping("/all-bookings")
+    public ResponseEntity<ApiResponse<List<BookingDetailRes>>> getAllUserBookings() {
+        return ResponseEntity.ok(bookingService.getAllUserBookings());
     }
 }

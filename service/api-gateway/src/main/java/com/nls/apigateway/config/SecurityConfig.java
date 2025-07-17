@@ -75,7 +75,8 @@ public class SecurityConfig {
             BOOKING_PREFIX + "/admin/dashboard",
             PAYMENT_PREFIX + "/payment/revenue",
             USER_PREFIX + "/count/users",
-            USER_PREFIX + "/user-list"
+            USER_PREFIX + "/user-list",
+            BOOKING_PREFIX + "/booking/all-bookings",
     };
 
     @Bean

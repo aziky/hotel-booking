@@ -1,6 +1,7 @@
 package com.nls.bookingservice.application.impl;
 
 import com.nls.bookingservice.api.dto.request.CreateBookingReq;
+import com.nls.bookingservice.api.dto.response.BookingDetailRes;
 import com.nls.bookingservice.api.dto.response.CreateBookingRes;
 import com.nls.bookingservice.api.dto.response.UserBookingRes;
 import com.nls.bookingservice.application.IBookingService;
@@ -133,7 +134,39 @@ public class BookingService implements IBookingService {
         log.info("Converted booking to BookingDetailsRes: {}", bookingDetailsRes);
         return ApiResponse.ok(bookingDetailsRes, "Booking details fetched successfully");
     }
+    @Override
+    public ApiResponse<List<BookingDetailRes>> getAllUserBookings() {
+        try {
+            log.info("Getting all user bookings");
 
+            List<Booking> bookings = bookingRepository.findAllByOrderByCreatedAtDesc();
+
+            if (bookings.isEmpty()) {
+                log.info("No bookings found");
+                return ApiResponse.ok(List.of(), "No bookings found");
+            }
+
+            // Get booking IDs for external service calls
+            List<UUID> bookingIds = bookings.stream()
+                    .map(Booking::getId)
+                    .toList();
+
+            // Fetch payments from payment service
+            Map<UUID, PaymentRes> paymentMap = fetchPayments(bookingIds);
+
+            // Convert to response DTOs
+            List<BookingDetailRes> bookingDetails = bookings.stream()
+                    .map(booking -> convertToBookingDetailRes(booking, paymentMap.get(booking.getId())))
+                    .toList();
+
+            log.info("Found {} total bookings", bookingDetails.size());
+            return ApiResponse.ok(bookingDetails);
+
+        } catch (Exception e) {
+            log.error("Error getting all user bookings: {}", e.getMessage());
+            return ApiResponse.internalError();
+        }
+    }
     private Map<UUID, PaymentRes> fetchPayments(List<UUID> bookingIds) {
         try {
             log.info("Fetching payments for {} bookinbgs", bookingIds.size());
@@ -183,5 +216,27 @@ public class BookingService implements IBookingService {
         }
 
         return builder.build();
+    }
+
+    private BookingDetailRes convertToBookingDetailRes(Booking booking, PaymentRes payment) {
+        BookingDetailRes.BookingDetailResBuilder builder = BookingDetailRes.builder()
+                .id(booking.getId())
+                .propertyId(booking.getPropertyId())
+                .propertyName(getPropertyName(booking))
+                .totalAmount(booking.getTotalAmount())
+                .createdAt(booking.getCreatedAt());
+
+        if (payment != null) {
+            builder.paymentMethod(payment.getPaymentMethod());
+        }
+
+        return builder.build();
+    }
+
+    private String getPropertyName(Booking booking) {
+        if (booking.getProperty() != null) {
+            return booking.getProperty().getTitle();
+        }
+        return null;
     }
 }

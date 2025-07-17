@@ -34,4 +34,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
             UUID propertyId,
             String bookingStatus
     );
+
+    List<Booking> findAllByOrderByCreatedAtDesc();
 }
