@@ -8,6 +8,7 @@ import com.nls.bookingservice.application.IBookingService;
 import com.nls.bookingservice.domain.entity.Booking;
 import com.nls.bookingservice.domain.repository.BookingRepository;
 import com.nls.bookingservice.infrastructure.external.client.PaymentClient;
+import com.nls.bookingservice.infrastructure.external.client.UserClient;
 import com.nls.bookingservice.shared.mapper.BookingMapper;
 import com.nls.bookingservice.shared.utils.SecurityUtil;
 import com.nls.common.dto.request.CreatePaymentReq;
@@ -15,6 +16,7 @@ import com.nls.common.dto.response.ApiResponse;
 import com.nls.common.dto.response.BookingDetailsRes;
 import com.nls.common.dto.response.CreatePaymentRes;
 import com.nls.common.dto.response.PaymentRes;
+import com.nls.common.dto.response.UserRes;
 import com.nls.common.enumration.BookingStatus;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
@@ -42,6 +44,7 @@ public class BookingService implements IBookingService {
     BookingRepository bookingRepository;
     BookingMapper bookingMapper;
     PaymentClient paymentClient;
+    UserClient userClient;
 
     @Override
     @Transactional
@@ -228,6 +231,18 @@ public class BookingService implements IBookingService {
 
         if (payment != null) {
             builder.paymentMethod(payment.getPaymentMethod());
+        }
+
+        // Get user information
+        try {
+            ApiResponse<UserRes> userResponse = userClient.getUserById(booking.getUserId());
+            if (userResponse.code() == 200 && userResponse.data() != null) {
+                UserRes user = userResponse.data();
+                builder.username(user.name())
+                      .gmail(user.email());
+            }
+        } catch (Exception e) {
+            log.error("Error fetching user information: {}", e.getMessage());
         }
 
         return builder.build();
