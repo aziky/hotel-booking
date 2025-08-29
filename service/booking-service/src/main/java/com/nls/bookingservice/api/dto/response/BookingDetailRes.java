@@ -15,6 +15,8 @@ public class BookingDetailRes {
     private UUID propertyId;
     private String propertyName;
     private BigDecimal totalAmount;
+    private String username;
+    private String gmail;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;

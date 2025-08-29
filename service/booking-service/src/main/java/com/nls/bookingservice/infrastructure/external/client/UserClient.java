@@ -1,6 +1,7 @@
 package com.nls.bookingservice.infrastructure.external.client;
 
 import com.nls.common.dto.response.ApiResponse;
+import com.nls.common.dto.response.UserRes;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,4 +26,7 @@ public interface UserClient {
     @GetMapping("/api/admin/reviews/count")
     ApiResponse<Long> getReviewCount(@RequestParam LocalDateTime fromDate,
                                      @RequestParam LocalDateTime toDate);
+
+    @GetMapping(BASE_USER + "/{userId}")
+    ApiResponse<UserRes> getUserById(@PathVariable UUID userId);
 }
