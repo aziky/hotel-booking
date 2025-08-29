@@ -45,6 +45,30 @@ spring:
       hibernate:
         default_schema: booking-service
 
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always
+      schema: classpath:org/quartz/impl/jdbcjobstore/tables_postgres.sql
+    scheduler-name: QuartzScheduler
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceId: AUTO
+          threadPool:
+            threadCount: 5
+          jobStore:
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+            tablePrefix: QRTZ_
+            isClustered: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: user
+    password: password
+
 eureka:
   client:
     register-with-eureka: true
