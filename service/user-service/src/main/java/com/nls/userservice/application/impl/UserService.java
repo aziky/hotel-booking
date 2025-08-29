@@ -27,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +59,7 @@ public class UserService implements IUserService {
 
             if (!passwordEncoder.matches(loginReq.password(), user.getPasswordHash())) {
                 log.warn("Login failed: incorrect password for email {}", loginReq.email());
-                return ApiResponse.unauthorized("Invalid email or password");
+                throw new AccessDeniedException("Invalid email or password");
             }
 
             UserRes userRes = userMapper.convertToUserRes(user);

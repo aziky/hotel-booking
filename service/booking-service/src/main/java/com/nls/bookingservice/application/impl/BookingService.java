@@ -21,6 +21,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,10 +39,11 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BookingService implements IBookingService {
 
-    static long BOOKING_EXPIRE_DURATION_MINUTES = 30;
+    static long BOOKING_EXPIRE_DURATION_MINUTES = 5;
     BookingRepository bookingRepository;
     BookingMapper bookingMapper;
     PaymentClient paymentClient;
+    SchedulerService schedulerService;
 
     @Override
     @Transactional
@@ -49,7 +51,7 @@ public class BookingService implements IBookingService {
         log.info("Start handle create booking with request {}", request);
         Booking booking = bookingMapper.convertCreateBookingToBooking(request);
         booking.setUserId(SecurityUtil.getCurrentUserId());
-        booking.setExpiresAt(LocalDateTime.now().plusMinutes(BOOKING_EXPIRE_DURATION_MINUTES));
+        booking.setExpiresAt(LocalDateTime.now().plusMinutes(6));
         booking.setBookingStatus(BookingStatus.PENDING.name());
         bookingRepository.save(booking);
 
@@ -63,6 +65,14 @@ public class BookingService implements IBookingService {
         if (paymentResponse.code() != HttpStatus.CREATED.value()) {
             log.error("Create payment failed with response: {}", paymentResponse);
             throw new RuntimeException("Failed to create payment");
+        }
+
+        try {
+            log.info("Start sending to job schedule");
+            schedulerService.scheduleBookingReminder(booking.getId(), SecurityUtil.getCurrentUserId(), booking.getExpiresAt());
+        } catch (SchedulerException e) {
+            log.error("Error at handle schedule job cause by {}", e.getMessage());
+            throw new RuntimeException(e);
         }
 
         log.info("Payment created successfully for booking: {}", booking.getId());
@@ -84,7 +94,6 @@ public class BookingService implements IBookingService {
 
         return ApiResponse.ok(bookingDetailsRes);
     }
-
 
 
     @Override
@@ -134,6 +143,7 @@ public class BookingService implements IBookingService {
         log.info("Converted booking to BookingDetailsRes: {}", bookingDetailsRes);
         return ApiResponse.ok(bookingDetailsRes, "Booking details fetched successfully");
     }
+
     @Override
     public ApiResponse<List<BookingDetailRes>> getAllUserBookings() {
         try {
@@ -167,6 +177,7 @@ public class BookingService implements IBookingService {
             return ApiResponse.internalError();
         }
     }
+
     private Map<UUID, PaymentRes> fetchPayments(List<UUID> bookingIds) {
         try {
             log.info("Fetching payments for {} bookinbgs", bookingIds.size());
@@ -205,8 +216,7 @@ public class BookingService implements IBookingService {
                 .expiresAt(booking.getExpiresAt())
                 .bookingStatus(booking.getBookingStatus())
                 .specialRequests(booking.getSpecialRequests())
-                .createdAt(booking.getCreatedAt())
-                ;
+                .createdAt(booking.getCreatedAt());
 
         // Add payment details if available
         if (payment != null) {
